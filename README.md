@@ -1,2 +1,3 @@
 # blockpage
-Convenient Office made by blocks and bricks
+Convenient Office Prototype made by blocks and bricks
+Coded in assistance with AI
