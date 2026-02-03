@@ -1,0 +1,5954 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockpage - Professional Document Editor</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='6' y='4' width='20' height='24' rx='2' fill='%23252525' stroke='%23ff7e00' stroke-width='2'/%3E%3Cline x1='10' y1='10' x2='22' y2='10' stroke='%23ff7e00' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='10' y1='15' x2='22' y2='15' stroke='%23ff7e00' stroke-width='2' stroke-linecap='round'/%3E%3Cline x1='10' y1='20' x2='18' y2='20' stroke='%23ff7e00' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Archivo:wght@400;500;600;700&family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Source+Sans+3:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <!-- React -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <style>
+/**
+ * Blockpage - Stylesheet
+ * Version: 4.0.0 - Midnight Frost
+ * 
+ * Sections:
+ * 1. CSS Variables & Reset
+ * 2. Layout & Container
+ * 3. Sidebar Styles
+ * 4. Main Canvas & A4 Pages
+ * 5. Page Components (Portfolio, Cover, DIN Letter, Title, Block)
+ * 6. Block Components
+ * 7. Footer Styles
+ * 8. Context Panel
+ * 9. Dropdowns & Overlays
+ * 10. Utility & Print Styles
+ */
+
+/* =============================================================================
+   1. CSS VARIABLES & RESET
+   ============================================================================= */
+
+:root {
+    /* UI Colors - Midnight Frost Theme */
+    --ui-bg: #08080c;
+    --ui-bg-gradient: linear-gradient(135deg, #0d0d14 0%, #101018 100%);
+    --ui-surface: rgba(255, 255, 255, 0.02);
+    --ui-surface-hover: rgba(255, 255, 255, 0.04);
+    --ui-surface-active: rgba(255, 255, 255, 0.06);
+    --ui-border: rgba(255, 255, 255, 0.04);
+    --ui-border-hover: rgba(255, 255, 255, 0.08);
+    --ui-text: rgba(255, 255, 255, 0.85);
+    --ui-text-muted: rgba(255, 255, 255, 0.4);
+    --ui-text-subtle: rgba(255, 255, 255, 0.25);
+    --ui-accent: #ff7e00;
+    --ui-accent-hover: #ff9a33;
+    --ui-accent-glow: rgba(255, 126, 0, 0.15);
+    --ui-accent-border: rgba(255, 126, 0, 0.25);
+    
+    /* Glass Effects */
+    --glass-blur: 20px;
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.06);
+    
+    /* Document Colors */
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --gray-300: #dee2e6;
+    --gray-400: #ced4da;
+    --gray-500: #adb5bd;
+    --gray-600: #6c757d;
+    --gray-700: #495057;
+    --gray-800: #343a40;
+    --gray-900: #212529;
+    
+    /* Sizing - New UI */
+    --icon-rail-width: 56px;
+    --settings-panel-width: 220px;
+    --context-panel-width: 240px;
+    --radius: 8px;
+    --radius-lg: 12px;
+    --radius-sm: 6px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--ui-bg);
+    color: var(--ui-text);
+    overflow: hidden;
+}
+
+/* =============================================================================
+   2. LAYOUT & CONTAINER
+   ============================================================================= */
+
+.app-container {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    background: var(--ui-bg-gradient);
+    position: relative;
+}
+
+.main-canvas {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    transition: margin-right 0.3s ease;
+    position: relative;
+    z-index: 1;
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.main-canvas.panel-open {
+    margin-right: var(--context-panel-width);
+}
+
+/* Custom Scrollbar for Main Canvas */
+.main-canvas::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-canvas::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.main-canvas::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.main-canvas::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* =============================================================================
+   3. ICON RAIL - Left Navigation
+   ============================================================================= */
+
+.icon-rail {
+    width: var(--icon-rail-width);
+    background: rgba(8, 8, 12, 0.95);
+    border-right: 1px solid var(--ui-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 0;
+    position: relative;
+    z-index: 3;
+    flex-shrink: 0;
+}
+
+.rail-logo {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--ui-accent);
+    background: rgba(255, 126, 0, 0.1);
+    border-radius: 8px;
+}
+
+.rail-divider {
+    width: 24px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin-bottom: 14px;
+}
+
+.rail-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.rail-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+    background: none;
+    border: none;
+}
+
+.rail-item:hover {
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.rail-item.active {
+    color: var(--ui-accent);
+    background: rgba(255, 126, 0, 0.1);
+}
+
+.rail-item.active::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 18px;
+    background: var(--ui-accent);
+    border-radius: 0 2px 2px 0;
+}
+
+.rail-footer {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid var(--ui-border);
+}
+
+/* =============================================================================
+   4. SETTINGS PANEL - Left Panel Content
+   ============================================================================= */
+
+.settings-panel {
+    width: var(--settings-panel-width);
+    background: rgba(12, 12, 18, 0.95);
+    border-right: 1px solid var(--ui-border);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+    flex-shrink: 0;
+    transition: width 0.2s ease, opacity 0.2s ease;
+}
+
+.settings-panel.collapsed {
+    width: 0;
+    overflow: hidden;
+    opacity: 0;
+    border: none;
+}
+
+.panel-header {
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--ui-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+}
+
+.panel-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.panel-close {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 14px;
+    background: none;
+    border: none;
+}
+
+.panel-close:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.panel-content {
+    flex: 1;
+    padding: 14px;
+    overflow-y: auto;
+}
+
+.panel-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.panel-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.panel-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+/* Panel Sections */
+.panel-section {
+    margin-bottom: 18px;
+}
+
+.panel-label {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 10px;
+}
+
+/* Input Fields */
+.input-field {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    transition: all 0.15s ease;
+}
+
+.input-field:focus {
+    border-color: rgba(255, 126, 0, 0.4);
+    outline: none;
+}
+
+.input-field::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+/* Action Buttons */
+.action-btn {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.65);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.action-btn i {
+    color: var(--ui-accent);
+    font-size: 15px;
+}
+
+/* Color Grid */
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+}
+
+.color-item {
+    text-align: center;
+}
+
+.color-item-label {
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.35);
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.color-picker-box {
+    width: 100%;
+    height: 32px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 0;
+    background: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.color-picker-box::-webkit-color-swatch-wrapper {
+    padding: 2px;
+}
+
+.color-picker-box::-webkit-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+.color-picker-box::-moz-color-swatch {
+    border: none;
+    border-radius: 4px;
+}
+
+.color-picker-box:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Font Select */
+.select-field {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23ff7e00' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.select-field:focus {
+    outline: none;
+    border-color: rgba(255, 126, 0, 0.4);
+}
+
+/* Page List - New Style */
+.page-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-bottom: 12px;
+}
+
+.page-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 10px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 8px;
+    transition: all 0.15s ease;
+    cursor: grab;
+}
+
+.page-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.page-item.dragging {
+    opacity: 0.5;
+}
+
+.page-item.drag-over {
+    border-color: rgba(255, 126, 0, 0.5);
+    background: rgba(255, 126, 0, 0.1);
+}
+
+.page-grip {
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 11px;
+}
+
+.page-item-name {
+    flex: 1;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.65);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.page-item-num {
+    font-size: 9px;
+    font-weight: 600;
+    color: var(--ui-accent);
+    background: rgba(255, 126, 0, 0.12);
+    padding: 2px 7px;
+    border-radius: 4px;
+    min-width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-item-btn {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.25);
+    cursor: pointer;
+    font-size: 11px;
+    transition: all 0.15s ease;
+}
+
+.page-item-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.page-item-btn:hover i.bi-trash {
+    color: #ef4444;
+}
+
+.add-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    border: 1px dashed rgba(255, 126, 0, 0.25);
+    border-radius: 8px;
+    color: var(--ui-accent);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+}
+
+.add-btn:hover {
+    background: rgba(255, 126, 0, 0.06);
+    border-color: rgba(255, 126, 0, 0.4);
+}
+
+.add-btn.primary {
+    background: rgba(255, 126, 0, 0.15);
+    border: 1px solid rgba(255, 126, 0, 0.4);
+    color: var(--ui-accent);
+    font-weight: 600;
+}
+
+.add-btn.primary:hover {
+    background: rgba(255, 126, 0, 0.25);
+    border-color: rgba(255, 126, 0, 0.6);
+}
+
+/* Danger Button */
+.action-btn.danger {
+    border-color: rgba(239, 68, 68, 0.2);
+    color: rgba(239, 68, 68, 0.7);
+}
+
+.action-btn.danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.action-btn.danger i {
+    color: rgba(239, 68, 68, 0.7);
+}
+
+.action-btn.danger:hover i {
+    color: #ef4444;
+}
+
+/* Toggle Button */
+.toggle-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: var(--ui-surface);
+    border: 1px solid var(--ui-border);
+    border-radius: var(--radius);
+    color: var(--ui-text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.toggle-btn:hover {
+    background: var(--ui-surface-hover);
+    border-color: var(--ui-border-hover);
+    color: var(--ui-text);
+}
+
+.toggle-btn.active {
+    background: rgba(255, 126, 0, 0.15);
+    border-color: rgba(255, 126, 0, 0.3);
+    color: var(--ui-accent);
+}
+
+.toggle-btn i {
+    font-size: 14px;
+}
+
+/* Media Gallery Panel */
+.media-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 14px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.media-tab {
+    flex: 1;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.media-tab:hover {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.media-tab.active {
+    background: rgba(255, 126, 0, 0.12);
+    color: var(--ui-accent);
+}
+
+.media-tab i {
+    font-size: 13px;
+}
+
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.media-thumb {
+    aspect-ratio: 1;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.media-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.media-thumb:hover {
+    border-color: rgba(255, 126, 0, 0.3);
+    background: rgba(255, 126, 0, 0.05);
+}
+
+.media-thumb.selected {
+    border-color: var(--ui-accent);
+    box-shadow: 0 0 0 2px rgba(255, 126, 0, 0.3);
+}
+
+.media-thumb.add {
+    border-style: dashed;
+    color: var(--ui-accent);
+}
+
+.media-thumb .delete-btn {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 18px;
+    height: 18px;
+    background: rgba(239, 68, 68, 0.9);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    cursor: pointer;
+    border: none;
+}
+
+.media-thumb:hover .delete-btn {
+    opacity: 1;
+}
+
+.media-thumb .delete-btn:hover {
+    background: #ef4444;
+}
+
+.media-delete-all {
+    width: 100%;
+    padding: 8px 10px;
+    background: transparent;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 6px;
+    color: rgba(239, 68, 68, 0.7);
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.media-delete-all:hover {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
+}
+
+.media-delete-all i {
+    font-size: 12px;
+}
+
+/* Info Panel */
+.info-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 30px 16px;
+}
+
+.info-logo {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--ui-accent);
+    margin-bottom: 6px;
+}
+
+.info-version {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.35);
+    margin-bottom: 24px;
+}
+
+.info-divider {
+    width: 50px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    margin-bottom: 24px;
+}
+
+.info-author {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-bottom: 4px;
+}
+
+.info-link {
+    color: var(--ui-accent);
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.info-link:hover {
+    text-decoration: underline;
+}
+
+/* Legacy sidebar classes (for compatibility) */
+.sidebar-left { display: none; }
+.sidebar-header { display: none; }
+.sidebar-logo { display: none; }
+.sidebar-content { display: none; }
+.sidebar-section { display: none; }
+.sidebar-section-title { display: none; }
+.sidebar-label { font-size: 10px; color: rgba(255, 255, 255, 0.3); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px; }
+.sidebar-row { display: flex; gap: 10px; margin-bottom: 10px; }
+.sidebar-row > div { flex: 1; }
+.sidebar-btn { display: none; }
+.sidebar-btn-row { display: none; }
+.sidebar-footer { display: none; }
+.document-name-input { 
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    transition: all 0.15s ease;
+}
+.document-name-input:focus {
+    border-color: rgba(255, 126, 0, 0.4);
+    outline: none;
+}
+.document-name-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.color-picker {
+    width: 100%;
+    height: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 2px;
+    transition: all 0.15s ease;
+}
+
+.color-picker:hover {
+    border-color: rgba(255, 126, 0, 0.4);
+}
+
+.font-select {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%23ff7e00' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.font-select:focus {
+    outline: none;
+    border-color: rgba(255, 126, 0, 0.4);
+}
+
+/* =============================================================================
+   4. MAIN CANVAS & A4 PAGES
+   ============================================================================= */
+
+.a4-page {
+    width: 210mm;
+    min-height: 297mm;
+    background: #fff;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    border-radius: 4px;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    transition: background-color 0.3s ease;
+}
+
+.a4-page.doc-dark {
+    background: var(--doc-dark-bg, #1a1a2e);
+}
+
+.page-watermark {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* =============================================================================
+   5. PAGE COMPONENTS
+   ============================================================================= */
+
+/* Portfolio Page */
+.portfolio-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+}
+
+.portfolio-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 12mm;
+}
+
+.portfolio-header {
+    padding: 15mm 15mm 6mm;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.portfolio-subtitle {
+    font-size: 10pt;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 2mm;
+}
+
+.portfolio-title {
+    font-size: 18pt;
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.3;
+    margin-bottom: 3mm;
+}
+
+.portfolio-intro {
+    font-size: 10pt;
+    color: rgba(255, 255, 255, 0.9);
+    line-height: 1.6;
+    margin-bottom: 4mm;
+    max-width: 110mm;
+    white-space: pre-wrap;
+}
+
+.portfolio-cta-row {
+    display: flex;
+    align-items: center;
+    gap: 4mm;
+}
+
+.portfolio-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    color: #fff;
+    font-size: 9pt;
+    font-weight: 500;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+}
+
+.portfolio-video-thumb {
+    width: 40mm;
+    height: 25mm;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.portfolio-video-thumb img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.grid-wrapper {
+    padding: 0 15mm;
+    height: 165mm;
+    flex-shrink: 0;
+}
+
+.grid-a {
+    display: grid;
+    grid-template-columns: 1fr;
+    height: 100%;
+}
+
+.grid-b {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3mm;
+    height: 100%;
+}
+
+.grid-c {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 2mm;
+    height: 100%;
+}
+
+.grid-c .g-item:nth-child(1) {
+    grid-column: span 2;
+    grid-row: span 2;
+}
+
+.grid-c .g-item:nth-child(4) {
+    grid-column: span 2;
+}
+
+.g-item {
+    overflow: hidden;
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.1);
+    position: relative;
+}
+
+.g-item img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.portfolio-info-box {
+    margin: 3mm 15mm 0;
+    padding: 2mm 3mm;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 2mm;
+}
+
+.portfolio-info-icon {
+    width: 5mm;
+    height: 5mm;
+    border-radius: 2px;
+    overflow: hidden;
+    background: #fff;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.portfolio-info-icon img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.portfolio-info-text {
+    font-size: 8pt;
+    color: var(--gray-600);
+    line-height: 1.4;
+    flex: 1;
+}
+
+/* Cover Letter Page */
+.cover-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 12mm;
+}
+
+.cover-header {
+    padding: 15mm;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.cover-header-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.cover-header-content {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+}
+
+.cover-title {
+    font-size: 18pt;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 3mm;
+}
+
+.cover-position {
+    font-size: 10pt;
+    margin-bottom: 4mm;
+}
+
+.cover-name {
+    font-size: 10pt;
+    color: #fff;
+    margin-bottom: 6mm;
+}
+
+.cover-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 2mm;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 3mm;
+    font-size: 9pt;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.contact-item i {
+    width: 14px;
+}
+
+.cover-photo {
+    width: 40mm;
+    height: 52mm;
+    border-radius: var(--radius);
+    background: var(--gray-200);
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.cover-photo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cover-letter-body {
+    padding: 8mm 15mm;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.letter-date {
+    font-size: 9pt;
+    color: var(--gray-500);
+    text-align: right;
+    margin-bottom: 5mm;
+}
+
+.letter-greeting {
+    font-weight: 600;
+    font-size: 10pt;
+    margin-bottom: 3mm;
+}
+
+.letter-text {
+    font-size: 10pt;
+    line-height: 1.65;
+    flex: 1;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+}
+
+.letter-closing {
+    margin-top: 2mm;
+}
+
+.letter-regards {
+    font-size: 10pt;
+    color: var(--gray-600);
+    margin-bottom: 2mm;
+}
+
+.signature-area {
+    display: flex;
+    flex-direction: column;
+    gap: 1mm;
+}
+
+.signature-image {
+    width: 38mm;
+    height: 14mm;
+    overflow: hidden;
+    position: relative;
+}
+
+.signature-image img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.signature-name {
+    font-size: 10pt;
+}
+
+/* DIN Letter Page - DIN 5008 Form B compliant */
+/* Sichtfenster: 45x90mm, Position: 20mm links, 15mm vom unteren Umschlagrand */
+/* Form B: Anschriftfeld beginnt bei 62.7mm vom oberen Blattrand */
+.din-letter-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 297mm;
+    padding: 0 20mm 12mm 20mm;
+}
+
+/* Absenderzeile - oben im Anschriftfeld, 45mm vom oberen Rand */
+.din-sender-zone {
+    position: absolute;
+    top: 45mm;
+    left: 20mm;
+    width: 85mm;
+    height: 17.7mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.din-sender {
+    font-size: 8pt;
+    color: var(--gray-500);
+    border-bottom: 0.5px solid var(--gray-400);
+    padding-bottom: 1mm;
+}
+
+/* Anschriftfeld - 62.7mm vom oberen Rand, 27.3mm Hoehe */
+.din-address-zone {
+    position: absolute;
+    top: 62.7mm;
+    left: 20mm;
+    width: 85mm;
+    height: 27.3mm;
+}
+
+.din-address {
+    min-height: 27.3mm;
+    margin-bottom: 8.46mm;
+}
+
+.din-address-text {
+    font-size: 10pt;
+    line-height: 1.4;
+    white-space: pre-wrap;
+}
+
+/* Bezugszeichenzeile */
+.din-info-block {
+    margin-top: 98.46mm;
+    margin-bottom: 8.46mm;
+}
+
+.din-info-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 4mm;
+}
+
+.din-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 1mm;
+}
+
+.din-info-label {
+    font-size: 7pt;
+    color: var(--gray-500);
+    text-transform: uppercase;
+}
+
+.din-subject {
+    font-weight: 600;
+    font-size: 11pt;
+    margin-bottom: 4mm;
+}
+
+.din-body {
+    font-size: 10pt;
+    line-height: 1.6;
+    flex: 1;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    overflow: hidden;
+}
+
+.din-signature {
+    margin-top: 8mm;
+}
+
+/* Title Page (NEW) */
+.title-page-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding-bottom: 12mm;
+}
+
+.title-page-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.title-page-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20mm;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.title-page-logo {
+    width: 30mm;
+    height: 30mm;
+    margin-bottom: 10mm;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.title-page-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.title-page-image {
+    width: 120mm;
+    height: 80mm;
+    margin-bottom: 10mm;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.title-page-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.title-page-subtitle {
+    font-size: 12pt;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 4mm;
+    letter-spacing: 2px;
+}
+
+.title-page-title {
+    font-size: 32pt;
+    font-weight: 400;
+    color: #fff;
+    line-height: 1.2;
+    margin-bottom: 6mm;
+}
+
+.title-page-description {
+    font-size: 11pt;
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    max-width: 140mm;
+    margin-bottom: 8mm;
+    white-space: pre-wrap;
+}
+
+.title-page-author {
+    font-size: 14pt;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 2mm;
+}
+
+.title-page-date {
+    font-size: 10pt;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Block Page (CV Content) */
+.cv-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 15mm 15mm 12mm;
+}
+
+.content-blocks {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4mm;
+    overflow: visible;
+    padding-top: 12px;
+}
+
+/* Block Drag and Drop */
+.block-wrapper {
+    position: relative;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.block-wrapper.dragging {
+    opacity: 0.5;
+    transform: scale(0.98);
+}
+
+.block-wrapper.drag-over {
+    border-top: 2px solid #ff7e00;
+    padding-top: 2px;
+}
+
+.block-drag-handle {
+    position: absolute;
+    left: -20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-400);
+    cursor: grab;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 10;
+}
+
+.block-wrapper:hover .block-drag-handle {
+    opacity: 1;
+}
+
+.block-drag-handle:active {
+    cursor: grabbing;
+}
+
+.block-drag-handle i {
+    font-size: 14px;
+}
+
+/* =============================================================================
+   6. BLOCK COMPONENTS
+   ============================================================================= */
+
+.content-block {
+    position: relative;
+}
+
+.block-header {
+    display: flex;
+    align-items: center;
+    gap: 2mm;
+    margin-bottom: 2mm;
+    padding-bottom: 2mm;
+    border-bottom: 2px solid;
+}
+
+.block-icon {
+    width: 16px;
+    height: 16px;
+    background: var(--gray-100);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.block-icon img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.block-title {
+    font-size: 12pt;
+}
+
+/* Experience Block */
+.exp-entry {
+    display: grid;
+    grid-template-columns: 24mm 1fr 22mm;
+    gap: 3mm;
+    margin-bottom: 3mm;
+    padding-bottom: 3mm;
+    border-bottom: 1px solid var(--gray-200);
+    position: relative;
+}
+
+.exp-entry:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.exp-entry.no-img {
+    grid-template-columns: 24mm 1fr;
+}
+
+.exp-date {
+    font-size: 9pt;
+}
+
+.exp-content h3 {
+    font-weight: 600;
+    font-size: 10pt;
+    margin-bottom: 1mm;
+}
+
+.exp-company {
+    font-size: 9pt;
+    font-weight: 500;
+}
+
+.exp-type {
+    font-size: 9pt;
+}
+
+.exp-desc {
+    font-size: 9pt;
+    margin-top: 1mm;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.exp-img {
+    width: 22mm;
+    height: 22mm;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--gray-100);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.exp-img img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Education Block */
+.edu-entry {
+    display: flex;
+    gap: 3mm;
+    margin-bottom: 3mm;
+    position: relative;
+}
+
+.edu-logo {
+    width: 24mm;
+    height: 12mm;
+    background: var(--gray-100);
+    border-radius: var(--radius);
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.edu-logo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.edu-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5mm;
+}
+
+.edu-institution {
+    font-weight: 600;
+    font-size: 10pt;
+}
+
+.edu-title {
+    font-size: 9pt;
+}
+
+.edu-date {
+    font-size: 9pt;
+}
+
+/* Certifications Block */
+.cert-grid {
+    display: grid;
+    gap: 3mm;
+}
+
+.cert-grid.cols-1 {
+    grid-template-columns: 1fr;
+}
+
+.cert-grid.cols-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+.cert-entry {
+    display: flex;
+    align-items: flex-start;
+    gap: 3mm;
+    padding: 3mm;
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+}
+
+.cert-entry-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.cert-logo {
+    width: 10mm;
+    height: 10mm;
+    background: #fff;
+    border-radius: 2px;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.cert-logo img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cert-info {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+}
+
+.cert-info h4 {
+    font-weight: 600;
+    font-size: 9pt;
+}
+
+.cert-info p {
+    font-size: 9pt;
+}
+
+/* Spotlight Block */
+.spotlight {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    min-height: 28mm;
+    padding: 3mm;
+}
+
+.spotlight-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.spotlight-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+.spotlight-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    padding: 2mm 4mm 2mm 6mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+}
+
+.spotlight-title {
+    font-size: 13pt;
+    margin-bottom: 3mm;
+}
+
+.spotlight-text {
+    font-size: 9pt;
+    line-height: 1.6;
+    margin-bottom: 3mm;
+    white-space: pre-wrap;
+}
+
+.spotlight-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: var(--radius);
+    font-size: 8pt;
+    color: #fff;
+    align-self: flex-start;
+}
+
+.spotlight-img {
+    width: 24mm;
+    height: 24mm;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    border-radius: var(--radius);
+    overflow: hidden;
+    align-self: center;
+    margin: 2mm;
+}
+
+.spotlight-img .img-drop {
+    width: 100%;
+    height: 100%;
+}
+
+.spotlight-img img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Text Block */
+.text-content {
+    font-size: 10pt;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+}
+
+.text-content.two-columns {
+    column-count: 2;
+    column-gap: 6mm;
+}
+
+/* Continuous Text Block */
+.continuous-text-block {
+    position: relative;
+}
+
+.continuous-text-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba(255, 126, 0, 0.08);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    font-size: 9pt;
+    color: #ff7e00;
+}
+
+.continuous-text-header i {
+    font-size: 12px;
+}
+
+.continuous-text-content {
+    font-size: 10pt;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
+    min-height: 40mm;
+    max-height: 180mm;
+    overflow: hidden;
+}
+
+.continuous-text-overflow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    background: rgba(255, 126, 0, 0.05);
+    border-top: 1px dashed rgba(255, 126, 0, 0.2);
+    margin-top: 8px;
+    font-size: 8pt;
+    color: rgba(255, 126, 0, 0.7);
+}
+
+.continuous-text-overflow i {
+    font-size: 10px;
+}
+
+/* Cards Block */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3mm;
+}
+
+.card-item {
+    border-radius: var(--radius);
+    overflow: hidden;
+    position: relative;
+    min-height: 24mm;
+}
+
+.card-item-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.card-content {
+    position: relative;
+    z-index: 1;
+    padding: 3mm;
+}
+
+.card-title {
+    font-size: 10pt;
+    font-weight: 600;
+    margin-bottom: 2mm;
+    display: block;
+}
+
+.card-text {
+    font-size: 9pt;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    display: block;
+}
+
+/* Quote Block */
+.quote-block {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    display: flex;
+    padding: 4mm;
+    gap: 4mm;
+    min-height: 24mm;
+}
+
+.quote-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.quote-portrait {
+    width: 18mm;
+    height: 18mm;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.quote-portrait img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.quote-content {
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.quote-text-wrapper {
+    margin-bottom: 2mm;
+}
+
+.quote-mark {
+    font-size: 24pt;
+    font-family: Georgia, serif;
+    line-height: 0;
+    vertical-align: middle;
+}
+
+.quote-mark.open {
+    margin-right: 2px;
+}
+
+.quote-mark.close {
+    margin-left: 2px;
+}
+
+.quote-text {
+    font-size: 10pt;
+    font-style: italic;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+
+.quote-attribution {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5mm;
+}
+
+.quote-author {
+    font-size: 9pt;
+    font-weight: 600;
+}
+
+.quote-role {
+    font-size: 8pt;
+    opacity: 0.8;
+}
+
+/* Gallery Block */
+.gallery-block {
+    display: grid;
+    gap: 3mm;
+    width: 100%;
+}
+
+.gallery-block.cols-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.gallery-block.cols-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.gallery-block.cols-4 {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.gallery-item {
+    aspect-ratio: 1;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--gray-100);
+    position: relative;
+}
+
+.gallery-item .img-drop {
+    width: 100%;
+    height: 100%;
+}
+
+.gallery-item img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* =============================================================================
+   7. FOOTER STYLES
+   ============================================================================= */
+
+.page-footer {
+    position: absolute;
+    bottom: 4mm;
+    left: 0;
+    right: 0;
+    padding: 3mm 15mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    border-top: 0.5px solid var(--gray-300);
+}
+
+.page-footer.light {
+    border-top-color: rgba(255, 255, 255, 0.2);
+}
+
+.page-footer.light .footer-item {
+    color: rgba(255, 255, 255, 0.75) !important;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 3mm;
+}
+
+.footer-icon {
+    width: 5mm;
+    height: 5mm;
+    border-radius: 2px;
+    overflow: hidden;
+    background: var(--gray-200);
+    flex-shrink: 0;
+    position: relative;
+}
+
+.footer-icon img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.footer-item {
+    font-size: 8pt;
+    color: var(--gray-500);
+}
+
+/* =============================================================================
+   8. CONTEXT PANEL
+   ============================================================================= */
+
+.context-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: var(--context-panel-width);
+    height: 100vh;
+    background: rgba(12, 12, 18, 0.95);
+    border-left: 1px solid var(--ui-border);
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+.context-panel.open {
+    transform: translateX(0);
+}
+
+.context-panel-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--ui-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.context-panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.context-panel-close {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    border-radius: 5px;
+    color: rgba(255, 255, 255, 0.35);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 13px;
+}
+
+.context-panel-close:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.context-panel-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+}
+
+.context-panel-content::-webkit-scrollbar {
+    width: 4px;
+}
+
+.context-panel-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.context-panel-content::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+}
+
+.context-section {
+    margin-bottom: 16px;
+}
+
+.context-section-title {
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: rgba(255, 255, 255, 0.3);
+    margin-bottom: 10px;
+}
+
+.context-row {
+    display: flex;
+    gap: 6px;
+}
+
+.context-btn {
+    flex: 1;
+    padding: 9px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+}
+
+.context-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.context-btn.active {
+    background: rgba(255, 126, 0, 0.1);
+    border-color: rgba(255, 126, 0, 0.25);
+    color: var(--ui-accent);
+}
+
+.bg-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 11px;
+    cursor: pointer;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all 0.15s ease;
+    margin-bottom: 4px;
+}
+
+.bg-option:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.bg-option.active {
+    background: rgba(255, 126, 0, 0.08);
+    border-color: rgba(255, 126, 0, 0.2);
+}
+
+.bg-option input[type="radio"] {
+    accent-color: var(--ui-accent);
+    width: 14px;
+    height: 14px;
+}
+
+.bg-option span {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.bg-option.active span {
+    color: var(--ui-accent);
+}
+
+.color-swatches {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.15s ease;
+    border: 2px solid transparent;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.color-swatch.active {
+    border-color: var(--ui-accent);
+    box-shadow: 0 0 0 2px var(--ui-accent-glow);
+}
+
+.color-swatch.none {
+    background: repeating-linear-gradient(
+        45deg,
+        rgba(255,255,255,0.1),
+        rgba(255,255,255,0.1) 4px,
+        rgba(255,255,255,0.05) 4px,
+        rgba(255,255,255,0.05) 8px
+    );
+    border: 1px solid var(--ui-border);
+}
+
+.tile-images {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tile-image-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tile-image-label {
+    font-size: 11px;
+    color: var(--ui-text-muted);
+    min-width: 50px;
+}
+
+.tile-image-upload {
+    flex: 1;
+    height: 40px;
+    background: var(--ui-surface);
+    border: 1px dashed var(--ui-border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--ui-text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    overflow: hidden;
+}
+
+.tile-image-upload:hover {
+    border-color: var(--ui-accent);
+    color: var(--ui-accent);
+}
+
+.tile-image-upload img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-upload-small {
+    height: 60px;
+    background: var(--ui-surface);
+    border: 1px dashed var(--ui-border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--ui-text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    overflow: hidden;
+}
+
+.image-upload-small:hover {
+    border-color: var(--ui-accent-border);
+    background: var(--ui-accent-glow);
+    color: var(--ui-accent);
+}
+
+.slider-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.slider-row input[type="range"] {
+    flex: 1;
+    accent-color: var(--ui-accent);
+    background: transparent;
+}
+
+.slider-row span {
+    font-size: 12px;
+    color: var(--ui-text-muted);
+    min-width: 40px;
+    text-align: right;
+}
+
+/* =============================================================================
+   9. DROPDOWNS & OVERLAYS
+   ============================================================================= */
+
+.dropdown {
+    position: absolute;
+    background: rgba(20, 20, 30, 0.95);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    padding: 8px;
+    z-index: 1000;
+    min-width: 220px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.dropdown-item:hover {
+    background: var(--ui-surface-hover);
+}
+
+.dropdown-item i {
+    font-size: 18px;
+    color: var(--ui-accent);
+    width: 24px;
+    text-align: center;
+}
+
+.dropdown-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    display: block;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.dropdown-item small {
+    font-size: 11px;
+    color: var(--ui-text-muted);
+    display: block;
+}
+
+.insert-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.content-block:hover ~ .insert-overlay,
+.insert-overlay:hover,
+div:hover > .insert-overlay {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.insert-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--ui-accent);
+    border: none;
+    color: #0f0f1a;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+    z-index: 25;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(255, 126, 0, 0.3);
+}
+
+.insert-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 126, 0, 0.4);
+}
+
+/* =============================================================================
+   10. UTILITY & PRINT STYLES
+   ============================================================================= */
+
+/* Image Drop Component */
+.img-drop {
+    position: relative;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+}
+
+.img-drop-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 8pt;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.img-drop:hover .img-drop-overlay {
+    opacity: 1;
+}
+
+.img-drop img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.img-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-100);
+    color: var(--gray-400);
+    font-size: 14pt;
+}
+
+/* Editable text hover effect */
+[contenteditable="true"]:hover {
+    box-shadow: inset 0 0 0 1px rgba(74, 144, 217, 0.3);
+}
+
+[contenteditable="true"]:focus {
+    box-shadow: inset 0 0 0 2px var(--ui-accent);
+    outline: none;
+}
+
+/* Entry controls */
+.entry-controls {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    z-index: 20;
+}
+
+.content-block:hover .entry-controls {
+    opacity: 1;
+}
+
+.entry-btn {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-300);
+    border-radius: 3px;
+    cursor: pointer;
+    color: var(--gray-600);
+    font-size: 10px;
+}
+
+.entry-btn:hover {
+    background: var(--gray-200);
+}
+
+.entry-btn.delete:hover {
+    background: #fee;
+    color: #e74c3c;
+    border-color: #fcc;
+}
+
+/* =============================================================================
+   11. IMAGE EXPLORER (Legacy - hidden, integrated into Settings Panel)
+   ============================================================================= */
+
+.image-explorer {
+    display: none;
+}
+
+/* =============================================================================
+   12. PRINT STYLES - Multi-Page Support
+   ============================================================================= */
+
+@media print {
+    @page {
+        size: 210mm 297mm;
+        margin: 0;
+    }
+    
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+    }
+    
+    html, body {
+        width: 210mm !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: white !important;
+        font-size: 12pt !important;
+    }
+    
+    #root {
+        width: 210mm !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: white !important;
+    }
+    
+    .icon-rail,
+    .settings-panel,
+    .context-panel,
+    .entry-controls,
+    .insert-overlay,
+    .no-print,
+    .img-drop-overlay,
+    .block-drag-handle,
+    .continuous-text-header {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    .app-container {
+        display: block !important;
+        width: 210mm !important;
+        height: auto !important;
+        overflow: visible !important;
+        background: white !important;
+    }
+    
+    .main-canvas {
+        display: block !important;
+        width: 210mm !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        gap: 0 !important;
+        background: white !important;
+    }
+    
+    .a4-page {
+        width: 210mm !important;
+        height: 297mm !important;
+        min-height: 297mm !important;
+        max-height: 297mm !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-after: always !important;
+        page-break-inside: avoid !important;
+        break-after: page !important;
+        break-inside: avoid !important;
+        position: relative !important;
+        overflow: hidden !important;
+        display: block !important;
+        float: none !important;
+        border-radius: 0 !important;
+    }
+    
+    .a4-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
+    }
+    
+    /* Ensure all page content is visible */
+    .portfolio-content,
+    .cover-content,
+    .cv-content,
+    .din-letter-content,
+    .title-page-content {
+        overflow: visible !important;
+    }
+    
+    .content-blocks {
+        overflow: visible !important;
+        padding-top: 0 !important;
+    }
+    
+    /* Hide editable indicators */
+    [contenteditable="true"]:hover,
+    [contenteditable="true"]:focus {
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    
+    /* Ensure backgrounds print */
+    .portfolio-bg,
+    .cover-header-bg,
+    .title-page-bg,
+    .spotlight-bg,
+    .quote-bg,
+    .cert-entry-bg,
+    .card-item-bg {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+/* =============================================================================
+   13. RESPONSIVE DESIGN
+   ============================================================================= */
+
+/* Tablet Portrait */
+@media (max-width: 1200px) {
+    :root {
+        --settings-panel-width: 200px;
+        --context-panel-width: 220px;
+    }
+    
+    .main-canvas {
+        padding: 30px;
+        gap: 30px;
+    }
+}
+
+/* Tablet Landscape / Small Desktop */
+@media (max-width: 1024px) {
+    :root {
+        --icon-rail-width: 52px;
+        --settings-panel-width: 190px;
+        --context-panel-width: 200px;
+    }
+    
+    .rail-logo {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .rail-item {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+    
+    .a4-page {
+        width: 180mm;
+        min-height: 254.5mm;
+        transform-origin: top center;
+    }
+}
+
+/* Mobile Landscape / Small Tablet */
+@media (max-width: 768px) {
+    :root {
+        --icon-rail-width: 48px;
+        --settings-panel-width: 260px;
+    }
+    
+    html, body {
+        font-size: 13px;
+    }
+    
+    .settings-panel {
+        position: fixed;
+        left: var(--icon-rail-width);
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .settings-panel.collapsed {
+        transform: translateX(-100%);
+        width: var(--settings-panel-width);
+    }
+    
+    .main-canvas {
+        padding: 20px;
+        gap: 20px;
+        align-items: center;
+    }
+    
+    .main-canvas.panel-open {
+        margin-right: 0;
+    }
+    
+    .context-panel {
+        width: 100%;
+        max-width: 320px;
+    }
+    
+    .a4-page {
+        width: 210mm;
+        min-height: 297mm;
+        max-width: calc(100vw - var(--icon-rail-width) - 40px);
+        height: auto;
+        transform-origin: top center;
+        transform: scale(min(1, calc((100vw - var(--icon-rail-width) - 40px) / 210mm)));
+    }
+}
+
+/* Mobile Portrait */
+@media (max-width: 480px) {
+    :root {
+        --icon-rail-width: 0px;
+        --settings-panel-width: 100%;
+    }
+    
+    html, body {
+        font-size: 12px;
+    }
+    
+    .icon-rail {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        top: auto;
+        width: 100%;
+        height: 56px;
+        flex-direction: row;
+        padding: 0 8px;
+        border-right: none;
+        border-top: 1px solid var(--ui-border);
+        z-index: 100;
+    }
+    
+    .rail-logo {
+        display: none;
+    }
+    
+    .rail-divider {
+        display: none;
+    }
+    
+    .rail-items {
+        flex-direction: row;
+        flex: 1;
+        justify-content: space-around;
+    }
+    
+    .rail-footer {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+        padding-left: 8px;
+        flex-direction: row;
+        gap: 4px;
+    }
+    
+    .rail-item.active::before {
+        left: 50%;
+        top: -8px;
+        transform: translateX(-50%);
+        width: 18px;
+        height: 3px;
+        border-radius: 2px 2px 0 0;
+    }
+    
+    .settings-panel {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 56px;
+        width: 100%;
+        z-index: 99;
+    }
+    
+    .settings-panel.collapsed {
+        transform: translateY(-100%);
+    }
+    
+    .main-canvas {
+        padding: 16px;
+        padding-bottom: 72px;
+        gap: 16px;
+        align-items: center;
+        overflow-x: hidden;
+    }
+    
+    .context-panel {
+        width: 100%;
+        max-width: none;
+        bottom: 56px;
+        height: auto;
+        max-height: 70vh;
+    }
+    
+    /* A4 page scaling for mobile portrait */
+    .a4-page {
+        width: 210mm;
+        min-height: 297mm;
+        transform-origin: top center;
+        transform: scale(calc((100vw - 32px) / 210mm));
+        margin-bottom: calc((297mm * calc((100vw - 32px) / 210mm)) - 297mm + 20px);
+    }
+    
+    .dropdown {
+        position: fixed;
+        left: 16px !important;
+        right: 16px !important;
+        top: auto !important;
+        bottom: 72px !important;
+        transform: none !important;
+        max-height: 60vh;
+        overflow-y: auto;
+    }
+}
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+const { useState, useEffect, useRef, useContext, createContext } = React;
+
+/**
+ * Blockpage - Professional Document Editor
+ * Version: 2.0.0
+ * 
+ * Struktur:
+ * 1. Constants & Configuration
+ * 2. Utility Functions & Hooks
+ * 3. Context Providers
+ * 4. Core Components (ImageDrop, EditText, ColorSwatches)
+ * 5. Block Components (Heading, Experience, Education, etc.)
+ * 6. Page Components (Portfolio, Cover, Block, DinLetter, Title)
+ * 7. Panel Components (LeftSidebar, ContextPanel, ImageExplorer)
+ * 8. Main App Component
+ * 9. Render
+ */
+
+// =============================================================================
+// 1. CONSTANTS & CONFIGURATION
+// =============================================================================
+
+const FONTS = {
+    headline: [
+        { name: 'Playfair Display', value: "'Playfair Display', serif" },
+        { name: 'Special Elite', value: "'Special Elite', monospace" },
+        { name: 'Bebas Neue', value: "'Bebas Neue', sans-serif" },
+        { name: 'Oswald', value: "'Oswald', sans-serif" },
+        { name: 'Montserrat', value: "'Montserrat', sans-serif" },
+        { name: 'Merriweather', value: "'Merriweather', serif" },
+        { name: 'Abril Fatface', value: "'Abril Fatface', cursive" },
+    ],
+    body: [
+        { name: 'Source Sans 3', value: "'Source Sans 3', sans-serif" },
+        { name: 'Open Sans', value: "'Open Sans', sans-serif" },
+        { name: 'Roboto', value: "'Roboto', sans-serif" },
+        { name: 'Poppins', value: "'Poppins', sans-serif" },
+        { name: 'Inter', value: "'Inter', sans-serif" },
+        { name: 'Lora', value: "'Lora', serif" },
+        { name: 'Archivo', value: "'Archivo', sans-serif" },
+    ]
+};
+
+const BLOCK_TYPES = {
+    HEADING: 'heading',
+    EXPERIENCE: 'experience',
+    EDUCATION: 'education',
+    CERTIFICATIONS: 'certifications',
+    SPOTLIGHT: 'spotlight',
+    TEXT: 'text',
+    CONTINUOUS_TEXT: 'continuous_text',
+    CARDS: 'cards',
+    QUOTE: 'quote',
+    GALLERY: 'gallery'
+};
+
+const BLOCK_CONFIG = {
+    [BLOCK_TYPES.HEADING]: { name: 'Heading', icon: 'bi-type-h2', desc: 'Section header' },
+    [BLOCK_TYPES.EXPERIENCE]: { name: 'Experience', icon: 'bi-briefcase', desc: 'Work history' },
+    [BLOCK_TYPES.EDUCATION]: { name: 'Education', icon: 'bi-mortarboard', desc: 'Academic background' },
+    [BLOCK_TYPES.CERTIFICATIONS]: { name: 'Certifications', icon: 'bi-award', desc: 'Certificates & awards' },
+    [BLOCK_TYPES.SPOTLIGHT]: { name: 'Spotlight', icon: 'bi-star', desc: 'Featured highlight' },
+    [BLOCK_TYPES.TEXT]: { name: 'Text', icon: 'bi-text-paragraph', desc: 'Free text block' },
+    [BLOCK_TYPES.CONTINUOUS_TEXT]: { name: 'Continuous Text', icon: 'bi-text-wrap', desc: 'Auto-flows across pages' },
+    [BLOCK_TYPES.CARDS]: { name: '3 Cards', icon: 'bi-grid-3x3', desc: 'Three column cards' },
+    [BLOCK_TYPES.QUOTE]: { name: 'Quote', icon: 'bi-quote', desc: 'Testimonial quote' },
+    [BLOCK_TYPES.GALLERY]: { name: 'Gallery', icon: 'bi-images', desc: 'Image gallery' }
+};
+
+const PAGE_TYPES = {
+    PORTFOLIO: 'portfolio',
+    COVER: 'cover',
+    BLOCK: 'block',
+    DIN_LETTER: 'din',
+    TITLE: 'title'
+};
+
+// =============================================================================
+// 2. UTILITY FUNCTIONS & HOOKS
+// =============================================================================
+
+const generateId = () => Math.random().toString(36).substr(2, 9);
+
+const hexToRgb = (hex) => {
+    if (!hex || hex === 'none') return '0,0,0';
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `${r},${g},${b}`;
+};
+
+// =============================================================================
+// CENTRAL COLOR SYSTEM - All colors flow through this function
+// =============================================================================
+const getColors = (settings) => {
+    const palette = settings.documentDarkMode ? settings.dark : settings.light;
+    return {
+        // Page & Content backgrounds
+        pageBg: palette.pageBg,
+        contentBg: palette.contentBg,
+        
+        // Header/Gradient colors
+        headerBg: palette.headerBg,
+        headerBg2: palette.headerBg2,
+        headerBg3: palette.headerBg3,
+        
+        // Accent
+        accent: palette.accent,
+        
+        // Text colors
+        textPrimary: palette.textPrimary,
+        textSecondary: palette.textSecondary,
+        textOnDark: palette.textOnDark,
+        
+        // Border
+        border: palette.border,
+        
+        // Gradient helper
+        gradient: (opacity = 1) => `linear-gradient(135deg, 
+            rgba(${hexToRgb(palette.headerBg)}, ${opacity}) 0%, 
+            rgba(${hexToRgb(palette.headerBg2)}, ${opacity}) 50%, 
+            rgba(${hexToRgb(palette.headerBg3)}, ${opacity}) 100%)`,
+            
+        // Is dark mode active?
+        isDark: settings.documentDarkMode
+    };
+};
+
+// Legacy compatibility - these use getColors internally
+const getGradient = (settings, opacity = 1) => {
+    const colors = getColors(settings);
+    return colors.gradient(opacity);
+};
+
+const getTextColors = (settings) => {
+    const colors = getColors(settings);
+    return {
+        primary: colors.textPrimary,
+        secondary: colors.textSecondary,
+        accent: colors.accent
+    };
+};
+
+const getBgStyle = (bgType, bgImage, bgOpacity, bgColor, settings) => {
+    const colors = getColors(settings);
+    if (bgType === 'none' || bgColor === 'none') return { background: 'transparent' };
+    if (bgType === 'color' && bgColor) return { background: bgColor };
+    if (bgType === 'image' && bgImage) return { 
+        backgroundImage: `url(${bgImage})`, 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center' 
+    };
+    if (bgType === 'gradient-image' && bgImage) return { 
+        backgroundImage: `${colors.gradient(bgOpacity || 0.85)}, url(${bgImage})`, 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center' 
+    };
+    if (bgType === 'gradient') return { background: colors.gradient(1) };
+    return bgColor ? { background: bgColor } : { background: colors.gradient(1) };
+};
+
+const getTileBgStyle = (bgType, tileImage, bgOpacity, bgColor, settings) => {
+    if (bgType === 'none' || bgColor === 'none') return { background: 'transparent' };
+    if (bgType === 'color' && bgColor) return { background: bgColor };
+    if (bgType === 'image' && tileImage) return { 
+        backgroundImage: `url(${tileImage})`, 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center' 
+    };
+    if (bgType === 'gradient-image' && tileImage) return { 
+        backgroundImage: `${getGradient(settings, bgOpacity || 0.85)}, url(${tileImage})`, 
+        backgroundSize: 'cover', 
+        backgroundPosition: 'center' 
+    };
+    if (bgType === 'gradient') return { background: getGradient(settings, 1) };
+    return bgColor ? { background: bgColor } : { background: '#f1f3f5' };
+};
+
+// Custom Hooks
+const useClickOutside = (ref, handler) => {
+    useEffect(() => {
+        const listener = (e) => {
+            if (!ref.current || ref.current.contains(e.target)) return;
+            handler();
+        };
+        document.addEventListener('mousedown', listener);
+        return () => document.removeEventListener('mousedown', listener);
+    }, [ref, handler]);
+};
+
+// Undo/Redo Hook
+const useHistory = (initialState) => {
+    const [history, setHistory] = useState([initialState]);
+    const [index, setIndex] = useState(0);
+    
+    const state = history[index];
+    
+    const setState = (newState) => {
+        const newHistory = history.slice(0, index + 1);
+        newHistory.push(typeof newState === 'function' ? newState(state) : newState);
+        // Limit history to 50 states
+        if (newHistory.length > 50) newHistory.shift();
+        setHistory(newHistory);
+        setIndex(newHistory.length - 1);
+    };
+    
+    const undo = () => {
+        if (index > 0) setIndex(index - 1);
+    };
+    
+    const redo = () => {
+        if (index < history.length - 1) setIndex(index + 1);
+    };
+    
+    const canUndo = index > 0;
+    const canRedo = index < history.length - 1;
+    
+    const reset = (newState) => {
+        setHistory([newState]);
+        setIndex(0);
+    };
+    
+    return { state, setState, undo, redo, canUndo, canRedo, reset };
+};
+
+// Download/Export functions
+const downloadJSON = (data, pages, settings) => {
+    const cl = data.coverLetter || { line1: 'Document', line2: '', line3: '' };
+    const filename = `${cl.line1}_${cl.line2}_${cl.line3}`.replace(/[^a-zA-Z0-9]/g, '_') + '.json';
+    const blob = new Blob([JSON.stringify({ ...data, pages, settings }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+};
+
+// =============================================================================
+// 3. DEFAULT DATA FACTORIES
+// =============================================================================
+
+const defaultSettings = () => ({
+    primaryColor: '#0d2438',
+    // Document Dark Mode Toggle
+    documentDarkMode: false,
+    
+    // ===== LIGHT MODE PALETTE =====
+    light: {
+        pageBg: '#ffffff',           // Page background
+        contentBg: '#f8f9fa',        // Content area background (blocks, cards)
+        headerBg: '#0d2438',         // Header/gradient primary
+        headerBg2: '#1a3a52',        // Header/gradient secondary  
+        headerBg3: '#2d5a7b',        // Header/gradient tertiary
+        accent: '#d4a84b',           // Accent color (buttons, highlights)
+        textPrimary: '#343a40',      // Primary text
+        textSecondary: '#6c757d',    // Secondary text (muted)
+        textOnDark: '#ffffff',       // Text on dark backgrounds
+        border: '#dee2e6'            // Border color
+    },
+    
+    // ===== DARK MODE PALETTE =====
+    dark: {
+        pageBg: '#1a1a2e',           // Page background
+        contentBg: '#252542',        // Content area background
+        headerBg: '#0f0f1f',         // Header/gradient primary
+        headerBg2: '#1a1a35',        // Header/gradient secondary
+        headerBg3: '#25254a',        // Header/gradient tertiary
+        accent: '#ff7e00',           // Accent color
+        textPrimary: '#e8e8f0',      // Primary text
+        textSecondary: '#a0a0b8',    // Secondary text
+        textOnDark: '#ffffff',       // Text on dark backgrounds
+        border: '#3a3a5a'            // Border color
+    },
+    
+    headlineFont: FONTS.headline[0].value,
+    bodyFont: FONTS.body[0].value,
+    watermarkImage: null
+});
+
+const defaultFooter = () => ({
+    name: 'Bob T. Builder',
+    email: 'bob@blockpage.io',
+    phone: '+1 BRI-CK-4242',
+    icon: null
+});
+
+const createDefaultData = () => ({
+    footer: defaultFooter(),
+    personal: {
+        name: "Bob T. Builder",
+        position: "Chief Stacking Officer",
+        phone: "+1 BRI-CK-4242",
+        website: "blockpage.io",
+        email: "bob@blockpage.io",
+        photo: null,
+        signature: null
+    },
+    coverLetter: {
+        line1: "Application",
+        line2: "Master Builder",
+        line3: "Your Name",
+        date: "Brick City, January 2026",
+        greeting: "Dear Hiring Manager,",
+        body: "I am writing to apply for the position of Master Builder at your esteemed company. As a child, I learned that with the right building blocks, you can create anything – except perhaps a tidy bedroom.\n\nMy qualifications include:\n• 25 years of tower-building experience (the Leaning Tower of Pisa was NOT my fault, I swear)\n• Ability to walk barefoot across LEGO bricks (years of painful training)\n• Creative problem-solving – if a block doesn't fit, I'll MAKE it fit\n• Excellent teamwork skills – as long as nobody touches my favorite pieces\n• PhD in \"Finding That One Specific Brick In A Giant Box\" (still working on it)\n\nI firmly believe I can help your company grow, block by block. As my grandfather always said: \"Rome wasn't built in a day – but if they'd had Duplo, it would've been done by lunch.\"\n\nI look forward to building something great together!",
+        closing: "With constructive regards,",
+        sigName: "Your Name"
+    },
+    dinLetter: {
+        sender: "Your Name • Block Street 123 • 12345 Brick City",
+        address: "Building Blocks Inc.\nMs. Brick Layer\nTower Road 42\n54321 Stackington",
+        date: "January 15, 2026",
+        yourRef: "",
+        yourMsg: "",
+        ourRef: "BLOCK-2026",
+        subject: "Urgent Inquiry Regarding Missing Building Block",
+        body: "Dear Ms. Layer,\n\nIt is with great distress that I must inform you: my latest delivery is missing the most crucial brick of all – the one that holds everything together. You know the one. The piece you search for hours, only to find it later with your bare foot at 3 AM.\n\nI kindly request the immediate dispatch of the missing element. Without this brick, my entire life's work stands on shaky foundations – specifically on the living room carpet, where it definitely shouldn't be (according to my spouse).\n\nThis is now a matter of architectural emergency. My tower has been leaning suspiciously to the left for three days.\n\nThank you for your swift assistance in rebuilding my dreams.\n\nWith blocky regards,",
+        signature: "Your Name"
+    },
+    titlePage: {
+        logo: null,
+        image: null,
+        subtitle: "A Masterpiece Made of",
+        title: "Building Blocks",
+        description: "Some assembly required. Batteries not included.",
+        author: "The Master Builder",
+        date: "January 2026"
+    },
+    portfolio: {
+        subtitle: "Welcome to my",
+        title: "Block Gallery",
+        intro: "Here I present my finest constructions. Each project was built with love, patience, and at least three cups of coffee. Warning: May cause sudden urge to build things.",
+        ctaText: "Watch the Magic",
+        videoThumb: null,
+        images: [null, null, null, null, null, null, null, null],
+        gridVariant: 'C',
+        bgType: 'gradient',
+        bgImage: null,
+        bgOpacity: 0.85,
+        bgColor: null,
+        showWatermark: true,
+        infoText: 'No building blocks were harmed in the making of this portfolio.',
+        infoIcon: null
+    },
+    continuousText: ''
+});
+
+const createDefaultPages = () => [
+    { id: 'portfolio', type: PAGE_TYPES.PORTFOLIO, visible: true },
+    { 
+        id: 'cover', 
+        type: PAGE_TYPES.COVER, 
+        visible: true, 
+        bgType: 'gradient', 
+        bgImage: null, 
+        bgOpacity: 0.85, 
+        bgColor: null 
+    },
+    { 
+        id: 'block-1', 
+        type: PAGE_TYPES.BLOCK, 
+        visible: true, 
+        blocks: [
+            { id: 'h1', type: BLOCK_TYPES.HEADING, title: 'Experience', icon: null, underlineColor: null, textColor: null },
+            { 
+                id: 'exp1', 
+                type: BLOCK_TYPES.EXPERIENCE, 
+                entries: [{
+                    id: 1,
+                    dateStart: "2024",
+                    dateEnd: "Present",
+                    title: "Position Title",
+                    company: "Company Name",
+                    type: "Full-time",
+                    description: "Description of your role and achievements.",
+                    image: null
+                }]
+            }
+        ]
+    }
+];
+
+// =============================================================================
+// 4. CONTEXT PROVIDERS
+// =============================================================================
+
+const ImageLibraryContext = React.createContext({
+    images: [],
+    icons: [],
+    selectedImage: null,
+    addImages: () => {},
+    addIcons: () => {},
+    removeImage: () => {},
+    removeIcon: () => {},
+    clearAll: () => {},
+    selectImage: () => {}
+});
+
+// =============================================================================
+// 5. CORE COMPONENTS
+// =============================================================================
+
+/**
+ * ImageDrop - Drag & Drop Image Upload Component with Library support
+ */
+const ImageDrop = ({ src, onChange, className = '', style = {}, placeholder = '+' }) => {
+    const ctx = useContext(ImageLibraryContext);
+    const inputRef = useRef(null);
+    const [isDragOver, setIsDragOver] = useState(false);
+    
+    const handleFile = (file) => {
+        if (!file || !file.type?.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (e) => onChange(e.target.result);
+        reader.readAsDataURL(file);
+    };
+    
+    const handleClick = () => {
+        if (ctx.selectedImage) {
+            onChange(ctx.selectedImage);
+            ctx.selectImage(null);
+        } else {
+            inputRef.current?.click();
+        }
+    };
+    
+    const handleDragOver = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(true);
+    };
+    
+    const handleDragLeave = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+    };
+    
+    const handleDrop = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+        
+        // Check for files from filesystem
+        if (e.dataTransfer.files?.length > 0) {
+            handleFile(e.dataTransfer.files[0]);
+            return;
+        }
+        
+        // Check for image data from library drag
+        const imageData = e.dataTransfer.getData('text/plain');
+        if (imageData && imageData.startsWith('data:image')) {
+            onChange(imageData);
+        }
+    };
+    
+    return (
+        <div 
+            className={`img-drop ${className} ${isDragOver ? 'drag-over' : ''}`}
+            style={{ 
+                ...style, 
+                ...(ctx.selectedImage ? { outline: '2px solid var(--ui-accent)' } : {})
+            }}
+            onClick={handleClick}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+        >
+            <input
+                ref={inputRef}
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleFile(e.target.files[0])}
+                style={{ display: 'none' }}
+            />
+            {src ? (
+                <img src={src} alt="" draggable={false} />
+            ) : (
+                <div className="img-placeholder">{placeholder}</div>
+            )}
+            <div className="img-drop-overlay">
+                {ctx.selectedImage ? 'Click to insert' : isDragOver ? 'Drop here' : 'Change'}
+            </div>
+        </div>
+    );
+};
+
+/**
+ * EditText - Inline Editable Text Component
+ */
+const EditText = ({ value, onChange, tag: Tag = 'span', className = '', style = {}, multiline = false }) => {
+    const ref = useRef(null);
+    
+    const handleBlur = () => {
+        if (!ref.current) return;
+        let text = ref.current.innerHTML;
+        text = text
+            .replace(/<div>/gi, '\n')
+            .replace(/<\/div>/gi, '')
+            .replace(/<br\s*\/?>/gi, '\n')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/<[^>]+>/g, '');
+        onChange(text);
+    };
+    
+    const handleKeyDown = (e) => {
+        if (multiline && e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            document.execCommand('insertLineBreak');
+        } else if (!multiline && e.key === 'Enter') {
+            e.preventDefault();
+            ref.current?.blur();
+        }
+    };
+    
+    const handlePaste = (e) => {
+        e.preventDefault();
+        document.execCommand('insertText', false, e.clipboardData.getData('text/plain'));
+    };
+    
+    return (
+        <Tag
+            ref={ref}
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={handleBlur}
+            onKeyDown={handleKeyDown}
+            onPaste={handlePaste}
+            className={className}
+            style={style}
+        >
+            {value || ''}
+        </Tag>
+    );
+};
+
+/**
+ * ColorSwatches - Color Selection Component
+ */
+const ColorSwatches = ({ value, onChange, settings, includeNone = false, includeGray = true, includeBlack = false, includeWhite = false }) => {
+    const colors = [
+        settings.primaryColor,
+        settings.secondaryColor,
+        settings.tertiaryColor,
+        textColors.accent
+    ];
+    if (includeGray) colors.push('#f1f3f5');
+    if (includeBlack) colors.push('#343a40', '#000000');
+    if (includeWhite) colors.push('#ffffff');
+    
+    return (
+        <div className="color-swatches">
+            {colors.map((c, i) => (
+                <div
+                    key={i}
+                    className={`color-swatch ${value === c ? 'active' : ''}`}
+                    style={{ background: c, border: c === '#ffffff' ? '1px solid #ddd' : 'none' }}
+                    onClick={() => onChange(c)}
+                />
+            ))}
+            {includeNone && (
+                <div
+                    className={`color-swatch none ${value === 'none' ? 'active' : ''}`}
+                    onClick={() => onChange('none')}
+                />
+            )}
+        </div>
+    );
+};
+
+// =============================================================================
+// 6. BLOCK COMPONENTS
+// =============================================================================
+
+/**
+ * HeadingBlock - Section Header Block
+ */
+const HeadingBlock = ({ block, onUpdate, onDelete, onSelect, settings }) => {
+    const colors = getColors(settings);
+    return (
+        <div className="content-block" onClick={onSelect}>
+            <div className="entry-controls no-print">
+                <button className="entry-btn delete" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                    <i className="bi bi-x" />
+                </button>
+            </div>
+            <div className="block-header" style={{ borderBottomColor: block.underlineColor || colors.accent }}>
+                <div className="block-icon">
+                    <ImageDrop
+                        src={block.icon}
+                        onChange={(v) => onUpdate({ ...block, icon: v })}
+                        placeholder={<i className="bi bi-image" style={{ fontSize: '9px', color: colors.textSecondary }} />}
+                    />
+                </div>
+                <EditText
+                    value={block.title}
+                    onChange={(v) => onUpdate({ ...block, title: v })}
+                    className="block-title"
+                    style={{ fontFamily: settings.headlineFont, color: block.textColor || colors.textPrimary }}
+                />
+            </div>
+        </div>
+    );
+};
+
+/**
+ * ExperienceBlock - Work Experience Block
+ */
+const ExperienceBlock = ({ block, onUpdate, onDelete, settings }) => {
+    const colors = getColors(settings);
+    
+    const addEntry = () => {
+        onUpdate({
+            ...block,
+            entries: [...block.entries, {
+                id: generateId(),
+                dateStart: "YYYY",
+                dateEnd: "YYYY",
+                title: "Position",
+                company: "Company",
+                type: "Full-time",
+                description: "",
+                image: null
+            }]
+        });
+    };
+    
+    const removeEntry = (id) => {
+        onUpdate({ ...block, entries: block.entries.filter(e => e.id !== id) });
+    };
+    
+    const updateEntry = (id, updates) => {
+        onUpdate({
+            ...block,
+            entries: block.entries.map(e => e.id === id ? { ...e, ...updates } : e)
+        });
+    };
+    
+    return (
+        <div className="content-block">
+            <div className="entry-controls no-print">
+                <button className="entry-btn" onClick={addEntry}><i className="bi bi-plus" /></button>
+                <button className="entry-btn delete" onClick={onDelete}><i className="bi bi-x" /></button>
+            </div>
+            {(block.entries || []).map((entry) => (
+                <div key={entry.id} className={`exp-entry ${entry.image ? '' : 'no-img'}`}>
+                    <div className="exp-date" style={{ color: colors.textSecondary }}>
+                        <EditText value={entry.dateStart} onChange={(v) => updateEntry(entry.id, { dateStart: v })} />
+                        <br />-<br />
+                        <EditText value={entry.dateEnd} onChange={(v) => updateEntry(entry.id, { dateEnd: v })} />
+                    </div>
+                    <div className="exp-content">
+                        <EditText
+                            value={entry.title}
+                            onChange={(v) => updateEntry(entry.id, { title: v })}
+                            tag="h3"
+                            style={{ color: colors.textPrimary }}
+                        />
+                        <p>
+                            <EditText
+                                value={entry.company}
+                                onChange={(v) => updateEntry(entry.id, { company: v })}
+                                className="exp-company"
+                                style={{ color: colors.textPrimary }}
+                            />
+                            {' '}
+                            <EditText
+                                value={`(${entry.type})`}
+                                onChange={(v) => updateEntry(entry.id, { type: v.replace(/[()]/g, '') })}
+                                className="exp-type"
+                                style={{ color: colors.textSecondary }}
+                            />
+                        </p>
+                        <EditText
+                            value={entry.description}
+                            onChange={(v) => updateEntry(entry.id, { description: v })}
+                            className="exp-desc"
+                            tag="div"
+                            style={{ color: colors.textSecondary }}
+                            multiline
+                        />
+                    </div>
+                    {entry.image !== undefined && (
+                        <div className="exp-img">
+                            <ImageDrop
+                                src={entry.image}
+                                onChange={(v) => updateEntry(entry.id, { image: v })}
+                            />
+                        </div>
+                    )}
+                    <button
+                        className="entry-btn delete no-print"
+                        style={{ position: 'absolute', bottom: '3mm', left: '0' }}
+                        onClick={() => removeEntry(entry.id)}
+                    >
+                        <i className="bi bi-trash" />
+                    </button>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+/**
+ * EducationBlock - Education/Academic Block
+ */
+const EducationBlock = ({ block, onUpdate, onDelete, settings }) => {
+    const colors = getColors(settings);
+    
+    const addEntry = () => {
+        onUpdate({
+            ...block,
+            entries: [...block.entries, {
+                id: generateId(),
+                institution: "Institution",
+                title: "Degree",
+                date: "YYYY",
+                logo: null
+            }]
+        });
+    };
+    
+    const removeEntry = (id) => {
+        onUpdate({ ...block, entries: block.entries.filter(e => e.id !== id) });
+    };
+    
+    const updateEntry = (id, updates) => {
+        onUpdate({
+            ...block,
+            entries: block.entries.map(e => e.id === id ? { ...e, ...updates } : e)
+        });
+    };
+    
+    return (
+        <div className="content-block">
+            <div className="entry-controls no-print">
+                <button className="entry-btn" onClick={addEntry}><i className="bi bi-plus" /></button>
+                <button className="entry-btn delete" onClick={onDelete}><i className="bi bi-x" /></button>
+            </div>
+            {(block.entries || []).map((entry) => (
+                <div key={entry.id} className="edu-entry">
+                    <div className="edu-logo">
+                        <ImageDrop
+                            src={entry.logo}
+                            onChange={(v) => updateEntry(entry.id, { logo: v })}
+                        />
+                    </div>
+                    <div className="edu-info">
+                        <EditText
+                            value={entry.institution}
+                            onChange={(v) => updateEntry(entry.id, { institution: v })}
+                            tag="span"
+                            className="edu-institution"
+                            style={{ color: colors.textPrimary }}
+                        />
+                        <EditText
+                            value={entry.title}
+                            onChange={(v) => updateEntry(entry.id, { title: v })}
+                            tag="span"
+                            className="edu-title"
+                            style={{ color: colors.textPrimary }}
+                        />
+                        <EditText
+                            value={entry.date}
+                            onChange={(v) => updateEntry(entry.id, { date: v })}
+                            tag="span"
+                            className="edu-date"
+                            style={{ color: colors.textSecondary }}
+                        />
+                    </div>
+                    <button
+                        className="entry-btn delete no-print"
+                        style={{ position: 'absolute', top: '0', right: '0' }}
+                        onClick={() => removeEntry(entry.id)}
+                    >
+                        <i className="bi bi-trash" />
+                    </button>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+/**
+ * CertBlock - Certifications Block
+ */
+const CertBlock = ({ block, onUpdate, onDelete, onSelect, settings }) => {
+    const colors = getColors(settings);
+    const cols = block.columns || 2;
+    const tileImages = block.tileImages || [];
+    const textColor = block.textColor || colors.textPrimary;
+    
+    const addEntry = () => {
+        onUpdate({
+            ...block,
+            entries: [...block.entries, { id: generateId(), name: "Certificate", course: "Course", logo: null }],
+            tileImages: [...tileImages, null]
+        });
+    };
+    
+    const removeEntry = (id, idx) => {
+        const newTiles = [...tileImages];
+        newTiles.splice(idx, 1);
+        onUpdate({
+            ...block,
+            entries: block.entries.filter(e => e.id !== id),
+            tileImages: newTiles
+        });
+    };
+    
+    const updateEntry = (id, updates) => {
+        onUpdate({
+            ...block,
+            entries: block.entries.map(e => e.id === id ? { ...e, ...updates } : e)
+        });
+    };
+    
+    return (
+        <div className="content-block" onClick={onSelect}>
+            <div className="entry-controls no-print">
+                <button className="entry-btn" onClick={(e) => { e.stopPropagation(); addEntry(); }}>
+                    <i className="bi bi-plus" />
+                </button>
+                <button className="entry-btn delete" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                    <i className="bi bi-x" />
+                </button>
+            </div>
+            <div className={`cert-grid cols-${cols}`}>
+                {(block.entries || []).map((entry, idx) => {
+                    const bgStyle = getTileBgStyle(block.bgType, tileImages[idx], block.bgOpacity, block.bgColor, settings);
+                    return (
+                        <div key={entry.id} className="cert-entry">
+                            <div className="cert-entry-bg" style={bgStyle} />
+                            <div className="cert-logo">
+                                <ImageDrop
+                                    src={entry.logo}
+                                    onChange={(v) => updateEntry(entry.id, { logo: v })}
+                                />
+                            </div>
+                            <div className="cert-info">
+                                <EditText
+                                    value={entry.name}
+                                    onChange={(v) => updateEntry(entry.id, { name: v })}
+                                    tag="h4"
+                                    style={{ color: textColor }}
+                                />
+                                <EditText
+                                    value={entry.course}
+                                    onChange={(v) => updateEntry(entry.id, { course: v })}
+                                    tag="p"
+                                    style={{ color: textColor, opacity: 0.8 }}
+                                />
+                            </div>
+                            <button
+                                className="entry-btn delete no-print"
+                                onClick={(e) => { e.stopPropagation(); removeEntry(entry.id, idx); }}
+                                style={{ position: 'absolute', top: '2mm', right: '2mm', zIndex: 2 }}
+                            >
+                                <i className="bi bi-trash" />
+                            </button>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+/**
+ * SpotlightBlock - Featured Highlight Block
+ */
+const SpotlightBlock = ({ block, onUpdate, onDelete, onSelect, settings }) => {
+    const colors = getColors(settings);
+    const bgStyle = getBgStyle(block.bgType || 'gradient', block.bgImage, block.bgOpacity, block.bgColor, settings);
+    const needsOverlay = block.bgType === 'image' || block.bgType === 'gradient-image';
+    const textColor = block.textColor || colors.textOnDark;
+    
+    return (
+        <div className="content-block" onClick={onSelect}>
+            <div className="entry-controls no-print">
+                <button className="entry-btn delete" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                    <i className="bi bi-x" />
+                </button>
+            </div>
+            <div className="spotlight">
+                <div className="spotlight-bg" style={bgStyle} />
+                {needsOverlay && (
+                    <div 
+                        className="spotlight-overlay" 
+                        style={{ background: `linear-gradient(90deg, rgba(${hexToRgb(colors.headerBg)},0.92) 0%, rgba(${hexToRgb(colors.headerBg)},0.75) 55%, transparent 100%)` }}
+                    />
+                )}
+                <div className="spotlight-content">
+                    <EditText
+                        value={block.title || 'Title'}
+                        onChange={(v) => onUpdate({ ...block, title: v })}
+                        className="spotlight-title"
+                        style={{ fontFamily: settings.headlineFont, color: textColor }}
+                    />
+                    <EditText
+                        value={block.text || 'Description'}
+                        onChange={(v) => onUpdate({ ...block, text: v })}
+                        className="spotlight-text"
+                        style={{ color: textColor, opacity: 0.9 }}
+                        multiline
+                    />
+                    {block.btnText && (
+                        <span className="spotlight-btn" style={{ background: colors.accent }}>
+                            <i className="bi bi-link-45deg" />
+                            <EditText
+                                value={block.btnText}
+                                onChange={(v) => onUpdate({ ...block, btnText: v })}
+                            />
+                        </span>
+                    )}
+                </div>
+                <div className="spotlight-img">
+                    <ImageDrop
+                        src={block.spotImage}
+                        onChange={(v) => onUpdate({ ...block, spotImage: v })}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+};
+
+/**
+ * TextBlock - Free Text Block with optional two-column layout
+ */
+const TextBlock = ({ block, onUpdate, onDelete, onSelect, settings }) => {
+    const colors = getColors(settings);
+    return (
+        <div className="content-block" onClick={onSelect}>
+            <div className="entry-controls no-print">
+                <button className="entry-btn delete" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                    <i className="bi bi-x" />
+                </button>
+            </div>
+            <EditText
+                value={block.content || 'Enter text...'}
+                onChange={(v) => onUpdate({ ...block, content: v })}
+                className={`text-content ${block.twoColumns ? 'two-columns' : ''}`}
+                style={{ fontFamily: settings.bodyFont, color: colors.textPrimary }}
+                tag="div"
+                multiline
+            />
+        </div>
+    );
+};
+
+/**
+ * CardsBlock - Three Column Cards Block
+ */
+const CardsBlock = ({ block, onUpdate, onDelete, onSelect, settings }) => {
+    const colors = getColors(settings);
+    const tileImages = block.tileImages || [null, null, null];
+    const textColor = block.textColor || colors.textPrimary;
+    const defaultTitles = ['Card Title', 'Card Title', 'Card Title'];
+    const defaultCards = ['Add your description text here.', 'Add your description text here.', 'Add your description text here.'];
+    
+    return (
+        <div className="content-block" onClick={onSelect}>
+            <div className="entry-controls no-print">
+                <button className="entry-btn delete" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                    <i className="bi bi-x" />
+                </button>
+            </div>
+            <div className="card-grid">
+                {[0, 1, 2].map((i) => {
+                    const bgStyle = getTileBgStyle(block.bgType || 'color', tileImages[i], block.bgOpacity, block.bgColor || colors.contentBg, settings);
+                    return (
+                        <div key={i} className="card-item">
+                            <div className="card-item-bg" style={bgStyle} />
+                            <div className="card-content">
+                                <EditText
+                                    value={(block.titles || defaultTitles)[i]}
+                                    onChange={(v) => {
+                                        const titles = [...(block.titles || defaultTitles)];
+                                        titles[i] = v;
+                                        onUpdate({ ...block, titles });
+                                    }}
+                                    className="card-title"
+                                    style={{ fontFamily: settings.headlineFont, color: textColor }}
+                                />
+                                <EditText
+                                    value={(block.cards || defaultCards)[i]}
+                                    onChange={(v) => {
+                                        const cards = [...(block.cards || defaultCards)];
+                                        cards[i] = v;
+                                        onUpdate({ ...block, cards });
+                                    }}
+                                    className="card-text"
+                                    style={{ fontFamily: settings.bodyFont, color: textColor, opacity: 0.85 }}
+                                    multiline
+                                />
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+/**
+ * QuoteBlock - Testimonial Quote Block
+ */
+const QuoteBlock = ({ block, onUpdate, onDelete, onSelect, settings }) => {
+    const colors = getColors(settings);
+    const bgStyle = getBgStyle(block.bgType || 'gradient', block.bgImage, block.bgOpacity, block.bgColor, settings);
+    const textColor = block.textColor || colors.textOnDark;
+    
+    return (
+        <div className="content-block" onClick={onSelect}>
+            <div className="entry-controls no-print">
+                <button className="entry-btn delete" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                    <i className="bi bi-x" />
+                </button>
+            </div>
+            <div className="quote-block">
+                <div className="quote-bg" style={bgStyle} />
+                <div className="quote-portrait">
+                    <ImageDrop
+                        src={block.portrait}
+                        onChange={(v) => onUpdate({ ...block, portrait: v })}
+                    />
+                </div>
+                <div className="quote-content">
+                    <div className="quote-text-wrapper">
+                        <span className="quote-mark open" style={{ color: colors.accent }}>"</span>
+                        <EditText
+                            value={block.quote || 'Quote...'}
+                            onChange={(v) => onUpdate({ ...block, quote: v })}
+                            className="quote-text"
+                            tag="span"
+                            style={{ color: textColor }}
+                            multiline
+                        />
+                        <span className="quote-mark close" style={{ color: colors.accent }}>"</span>
+                    </div>
+                    <div className="quote-attribution">
+                        <EditText
+                            value={block.author || 'Author'}
+                            onChange={(v) => onUpdate({ ...block, author: v })}
+                            className="quote-author"
+                            tag="span"
+                            style={{ color: textColor }}
+                        />
+                        <EditText
+                            value={block.role || 'Role'}
+                            onChange={(v) => onUpdate({ ...block, role: v })}
+                            className="quote-role"
+                            tag="span"
+                            style={{ color: textColor, opacity: 0.75 }}
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+/**
+ * GalleryBlock - Image Gallery Block
+ * 2 cols = 4 images, 3 cols = 6 images, 4 cols = 8 images
+ */
+const GalleryBlock = ({ block, onUpdate, onDelete, onSelect, settings }) => {
+    const cols = block.columns || 3;
+    // Calculate correct number of images: cols * 2 rows
+    const imageCount = cols === 2 ? 4 : cols === 3 ? 6 : 8;
+    const images = block.images || new Array(imageCount).fill(null);
+    
+    const updateImage = (idx, src) => {
+        const newImages = [...images];
+        // Ensure array is long enough
+        while (newImages.length < imageCount) newImages.push(null);
+        newImages[idx] = src;
+        onUpdate({ ...block, images: newImages });
+    };
+    
+    return (
+        <div className="content-block" onClick={onSelect}>
+            <div className="entry-controls no-print">
+                <button className="entry-btn delete" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                    <i className="bi bi-x" />
+                </button>
+            </div>
+            <div className={`gallery-block cols-${cols}`}>
+                {Array.from({ length: imageCount }).map((_, i) => (
+                    <div key={i} className="gallery-item">
+                        <ImageDrop
+                            src={images[i]}
+                            onChange={(v) => updateImage(i, v)}
+                        />
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+/**
+ * ContinuousTextBlock - Displays a portion of the global continuous text
+ * Each block calculates which portion of the text to show based on its position
+ */
+const ContinuousTextBlock = ({ block, onUpdate, onDelete, onSelect, settings, continuousText, onContinuousTextChange, blockIndex, allContinuousBlocks }) => {
+    const containerRef = useRef(null);
+    const [visibleText, setVisibleText] = useState('');
+    const [isFirst, setIsFirst] = useState(false);
+    const [charStart, setCharStart] = useState(0);
+    
+    // Calculate line height and characters per line
+    const CHARS_PER_LINE = 85; // Approximate chars per line at 10pt
+    const LINES_PER_BLOCK = 35; // Approximate lines that fit in the block area
+    const CHARS_PER_BLOCK = CHARS_PER_LINE * LINES_PER_BLOCK;
+    
+    useEffect(() => {
+        // Determine if this is the first continuous text block
+        const firstBlock = blockIndex === 0 || allContinuousBlocks.findIndex(b => b.id === block.id) === 0;
+        setIsFirst(firstBlock);
+        
+        // Calculate which portion of text this block should show
+        const myIndex = allContinuousBlocks.findIndex(b => b.id === block.id);
+        const startChar = myIndex * CHARS_PER_BLOCK;
+        setCharStart(startChar);
+        
+        // Get the visible portion
+        const text = continuousText || '';
+        const portion = text.substring(startChar, startChar + CHARS_PER_BLOCK);
+        setVisibleText(portion);
+    }, [continuousText, block.id, blockIndex, allContinuousBlocks]);
+    
+    const handleTextChange = (newText) => {
+        // When editing, update the global continuous text
+        const fullText = continuousText || '';
+        const before = fullText.substring(0, charStart);
+        const after = fullText.substring(charStart + visibleText.length);
+        const updatedText = before + newText + after;
+        onContinuousTextChange(updatedText);
+    };
+    
+    const hasMoreText = (continuousText || '').length > charStart + CHARS_PER_BLOCK;
+    const isOverflow = visibleText.length >= CHARS_PER_BLOCK;
+    const colors = getColors(settings);
+    
+    return (
+        <div className="content-block continuous-text-block" onClick={onSelect} ref={containerRef}>
+            <div className="entry-controls no-print">
+                <button className="entry-btn delete" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+                    <i className="bi bi-x" />
+                </button>
+            </div>
+            <div className="continuous-text-header no-print">
+                <i className="bi bi-text-wrap" />
+                <span>Continuous Text {!isFirst && `(continued)`}</span>
+            </div>
+            <div className="continuous-text-content">
+                <EditText
+                    value={visibleText}
+                    onChange={handleTextChange}
+                    style={{ fontFamily: settings.bodyFont, color: colors.textPrimary }}
+                    tag="div"
+                    multiline
+                />
+            </div>
+            {isOverflow && (
+                <div className="continuous-text-overflow no-print">
+                    <i className="bi bi-three-dots" />
+                    <span>{hasMoreText ? 'Continues on next page' : 'Add Continuous Text block on next page'}</span>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// Block Renderer Map
+const BLOCK_MAP = {
+    [BLOCK_TYPES.HEADING]: HeadingBlock,
+    [BLOCK_TYPES.EXPERIENCE]: ExperienceBlock,
+    [BLOCK_TYPES.EDUCATION]: EducationBlock,
+    [BLOCK_TYPES.CERTIFICATIONS]: CertBlock,
+    [BLOCK_TYPES.SPOTLIGHT]: SpotlightBlock,
+    [BLOCK_TYPES.TEXT]: TextBlock,
+    [BLOCK_TYPES.CONTINUOUS_TEXT]: ContinuousTextBlock,
+    [BLOCK_TYPES.CARDS]: CardsBlock,
+    [BLOCK_TYPES.QUOTE]: QuoteBlock,
+    [BLOCK_TYPES.GALLERY]: GalleryBlock
+};
+
+const BlockRenderer = (props) => {
+    const Component = BLOCK_MAP[props.block.type];
+    return Component ? <Component {...props} /> : null;
+};
+
+// =============================================================================
+// 7. PAGE COMPONENTS
+// =============================================================================
+
+/**
+ * PageFooter - Shared Footer Component
+ */
+const PageFooter = ({ footer, updateFooter, pageNum, light = false, settings }) => {
+    const colors = getColors(settings);
+    return (
+        <div className={`page-footer ${light ? 'light' : ''}`}>
+            <div className="footer-left">
+                <div className="footer-icon">
+                    <ImageDrop
+                        src={footer.icon}
+                        onChange={(v) => updateFooter({ ...footer, icon: v })}
+                        placeholder=""
+                    />
+                </div>
+                <EditText
+                    value={footer.name}
+                    onChange={(v) => updateFooter({ ...footer, name: v })}
+                    className="footer-item"
+                    style={{ fontFamily: settings.headlineFont, color: light ? colors.textOnDark : colors.textPrimary }}
+                />
+                <EditText
+                    value={footer.email}
+                    onChange={(v) => updateFooter({ ...footer, email: v })}
+                    className="footer-item"
+                    style={{ color: light ? 'rgba(255,255,255,0.7)' : colors.textSecondary }}
+                />
+                <EditText
+                    value={footer.phone}
+                    onChange={(v) => updateFooter({ ...footer, phone: v })}
+                    className="footer-item"
+                    style={{ color: light ? 'rgba(255,255,255,0.7)' : colors.textSecondary }}
+                />
+            </div>
+            <span className="footer-item" style={{ color: light ? 'rgba(255,255,255,0.5)' : colors.textSecondary }}>
+                {pageNum}
+            </span>
+        </div>
+    );
+};
+
+/**
+ * PortfolioPage - Image Portfolio/Gallery Page
+ */
+const PortfolioPage = ({ data, updateData, pageNum, settings, onSelectElement }) => {
+    const { portfolio, footer } = data;
+    
+    const updatePortfolio = (updates) => updateData('portfolio', { ...portfolio, ...updates });
+    const updateFooter = (f) => updateData('footer', f);
+    
+    const gridClass = portfolio.gridVariant === 'A' ? 'grid-a' : portfolio.gridVariant === 'B' ? 'grid-b' : 'grid-c';
+    const imgCount = portfolio.gridVariant === 'A' ? 1 : portfolio.gridVariant === 'B' ? 3 : 8;
+    const bgStyle = getBgStyle(portfolio.bgType, portfolio.bgImage, portfolio.bgOpacity, portfolio.bgColor, settings);
+    const textColors = getTextColors(settings);
+    
+    return (
+        <div 
+            className={`a4-page ${settings.documentDarkMode ? 'doc-dark' : ''}`} 
+            onClick={() => onSelectElement({ type: 'portfolio', data: portfolio })}
+            style={settings.documentDarkMode ? { '--doc-dark-bg': settings.dark.pageBg } : {}}
+        >
+            <div className="portfolio-bg" style={bgStyle} />
+            {portfolio.showWatermark && settings.watermarkImage && (
+                <div className="page-watermark" style={{ backgroundImage: `url(${settings.watermarkImage})` }} />
+            )}
+            <div className="portfolio-content" style={{ fontFamily: settings.bodyFont }}>
+                <div className="portfolio-header">
+                    <EditText
+                        value={portfolio.subtitle}
+                        onChange={(v) => updatePortfolio({ subtitle: v })}
+                        tag="p"
+                        className="portfolio-subtitle"
+                    />
+                    <EditText
+                        value={portfolio.title}
+                        onChange={(v) => updatePortfolio({ title: v })}
+                        tag="h1"
+                        className="portfolio-title"
+                        style={{ fontFamily: settings.headlineFont }}
+                    />
+                    <EditText
+                        value={portfolio.intro}
+                        onChange={(v) => updatePortfolio({ intro: v })}
+                        tag="p"
+                        className="portfolio-intro"
+                        multiline
+                    />
+                    <div className="portfolio-cta-row">
+                        <button className="portfolio-cta" style={{ background: textColors.accent }}>
+                            <i className="bi bi-play-circle" />
+                            <EditText
+                                value={portfolio.ctaText}
+                                onChange={(v) => updatePortfolio({ ctaText: v })}
+                            />
+                        </button>
+                        <div className="portfolio-video-thumb">
+                            <ImageDrop
+                                src={portfolio.videoThumb}
+                                onChange={(v) => updatePortfolio({ videoThumb: v })}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="grid-wrapper">
+                    <div className={gridClass}>
+                        {portfolio.images.slice(0, imgCount).map((img, i) => (
+                            <div key={i} className="g-item">
+                                <ImageDrop
+                                    src={img}
+                                    onChange={(src) => {
+                                        const images = [...portfolio.images];
+                                        images[i] = src;
+                                        updatePortfolio({ images });
+                                    }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="portfolio-info-box">
+                    <div className="portfolio-info-icon">
+                        <ImageDrop
+                            src={portfolio.infoIcon}
+                            onChange={(v) => updatePortfolio({ infoIcon: v })}
+                        />
+                    </div>
+                    <EditText
+                        value={portfolio.infoText}
+                        onChange={(v) => updatePortfolio({ infoText: v })}
+                        className="portfolio-info-text"
+                        tag="span"
+                    />
+                </div>
+            </div>
+            <PageFooter footer={footer} updateFooter={updateFooter} pageNum={pageNum} light settings={settings} />
+        </div>
+    );
+};
+
+/**
+ * CoverPage - Cover Letter Page
+ */
+const CoverPage = ({ data, updateData, pageNum, page, updatePage, settings, onSelectElement }) => {
+    const { personal, coverLetter, footer } = data;
+    
+    const updatePersonal = (updates) => updateData('personal', { ...personal, ...updates });
+    const updateCoverLetter = (updates) => updateData('coverLetter', { ...coverLetter, ...updates });
+    const updateFooter = (f) => updateData('footer', f);
+    
+    const bgStyle = getBgStyle(page.bgType, page.bgImage, page.bgOpacity, page.bgColor, settings);
+    const textColors = getTextColors(settings);
+    
+    return (
+        <div 
+            className={`a4-page ${settings.documentDarkMode ? 'doc-dark' : ''}`}
+            style={settings.documentDarkMode ? { '--doc-dark-bg': settings.dark.pageBg } : {}}
+        >
+            {settings.watermarkImage && (
+                <div className="page-watermark" style={{ backgroundImage: `url(${settings.watermarkImage})` }} />
+            )}
+            <div className="cover-content" style={{ fontFamily: settings.bodyFont, color: textColors.primary }}>
+                <div className="cover-header" onClick={() => onSelectElement({ type: 'cover-header', page })}>
+                    <div className="cover-header-bg" style={bgStyle} />
+                    <div className="cover-header-content">
+                        <EditText
+                            value={coverLetter.line1}
+                            onChange={(v) => updateCoverLetter({ line1: v })}
+                            tag="h1"
+                            className="cover-title"
+                            style={{ fontFamily: settings.headlineFont }}
+                        />
+                        <EditText
+                            value={coverLetter.line2}
+                            onChange={(v) => updateCoverLetter({ line2: v })}
+                            tag="p"
+                            className="cover-position"
+                            style={{ fontFamily: settings.headlineFont, color: textColors.accent }}
+                        />
+                        <EditText
+                            value={coverLetter.line3}
+                            onChange={(v) => updateCoverLetter({ line3: v })}
+                            tag="p"
+                            className="cover-name"
+                            style={{ fontFamily: settings.headlineFont }}
+                        />
+                        <div className="cover-contact">
+                            <div className="contact-item">
+                                <i className="bi bi-telephone" style={{ color: textColors.accent }} />
+                                <EditText value={personal.phone} onChange={(v) => updatePersonal({ phone: v })} />
+                            </div>
+                            <div className="contact-item">
+                                <i className="bi bi-globe" style={{ color: textColors.accent }} />
+                                <EditText value={personal.website} onChange={(v) => updatePersonal({ website: v })} />
+                            </div>
+                            <div className="contact-item">
+                                <i className="bi bi-envelope" style={{ color: textColors.accent }} />
+                                <EditText value={personal.email} onChange={(v) => updatePersonal({ email: v })} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="cover-photo">
+                        <ImageDrop src={personal.photo} onChange={(v) => updatePersonal({ photo: v })} />
+                    </div>
+                </div>
+                <div className="cover-letter-body">
+                    <EditText
+                        value={coverLetter.date}
+                        onChange={(v) => updateCoverLetter({ date: v })}
+                        tag="p"
+                        className="letter-date"
+                    />
+                    <EditText
+                        value={coverLetter.greeting}
+                        onChange={(v) => updateCoverLetter({ greeting: v })}
+                        tag="p"
+                        className="letter-greeting"
+                        style={{ color: textColors.primary }}
+                    />
+                    <div className="letter-text" style={{ color: textColors.primary }}>
+                        <EditText
+                            value={coverLetter.body}
+                            onChange={(v) => updateCoverLetter({ body: v })}
+                            tag="div"
+                            multiline
+                        />
+                    </div>
+                    <div className="letter-closing">
+                        <EditText
+                            value={coverLetter.closing}
+                            onChange={(v) => updateCoverLetter({ closing: v })}
+                            tag="p"
+                            className="letter-regards"
+                            style={{ color: textColors.secondary }}
+                        />
+                        <div className="signature-area">
+                            <div className="signature-image">
+                                <ImageDrop
+                                    src={personal.signature}
+                                    onChange={(v) => updatePersonal({ signature: v })}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <PageFooter footer={footer} updateFooter={updateFooter} pageNum={pageNum} settings={settings} />
+        </div>
+    );
+};
+
+/**
+ * DinLetterPage - German DIN 5008 Form B Standard Letter
+ * Sichtfenster: 45x90mm, von links 20mm, Position für Form B
+ * Absenderzeile beginnt bei 45mm vom oberen Rand
+ * Anschriftfeld beginnt bei 62.7mm vom oberen Rand (27.3mm Hoehe)
+ */
+const DinLetterPage = ({ data, updateData, pageNum, settings }) => {
+    const { dinLetter, footer } = data;
+    
+    const updateDinLetter = (updates) => updateData('dinLetter', { ...dinLetter, ...updates });
+    const updateFooter = (f) => updateData('footer', f);
+    const textColors = getTextColors(settings);
+    
+    return (
+        <div 
+            className={`a4-page ${settings.documentDarkMode ? 'doc-dark' : ''}`}
+            style={settings.documentDarkMode ? { '--doc-dark-bg': settings.dark.pageBg } : {}}
+        >
+            <div className="din-letter-content" style={{ fontFamily: settings.bodyFont, color: textColors.primary }}>
+                {/* Absenderzeile - Position 45mm vom oberen Rand */}
+                <div className="din-sender-zone">
+                    <div className="din-sender">
+                        <EditText
+                            value={dinLetter.sender}
+                            onChange={(v) => updateDinLetter({ sender: v })}
+                        />
+                    </div>
+                </div>
+                
+                {/* Anschriftfeld - Position 62.7mm vom oberen Rand, 27.3mm Hoehe */}
+                <div className="din-address-zone">
+                    <EditText
+                        value={dinLetter.address}
+                        onChange={(v) => updateDinLetter({ address: v })}
+                        tag="div"
+                        className="din-address-text"
+                        style={{ color: textColors.primary }}
+                        multiline
+                    />
+                </div>
+                
+                {/* Bezugszeichenzeile - nach dem Anschriftfeld */}
+                <div className="din-info-block">
+                    <div className="din-info-grid">
+                        <div className="din-info-item">
+                            <span className="din-info-label">Ihr Zeichen</span>
+                            <EditText
+                                value={dinLetter.yourRef || ''}
+                                onChange={(v) => updateDinLetter({ yourRef: v })}
+                                style={{ color: textColors.secondary }}
+                            />
+                        </div>
+                        <div className="din-info-item">
+                            <span className="din-info-label">Ihre Nachricht</span>
+                            <EditText
+                                value={dinLetter.yourMsg || ''}
+                                onChange={(v) => updateDinLetter({ yourMsg: v })}
+                                style={{ color: textColors.secondary }}
+                            />
+                        </div>
+                        <div className="din-info-item">
+                            <span className="din-info-label">Unser Zeichen</span>
+                            <EditText
+                                value={dinLetter.ourRef || ''}
+                                onChange={(v) => updateDinLetter({ ourRef: v })}
+                                style={{ color: textColors.secondary }}
+                            />
+                        </div>
+                        <div className="din-info-item">
+                            <span className="din-info-label">Datum</span>
+                            <EditText
+                                value={dinLetter.date}
+                                onChange={(v) => updateDinLetter({ date: v })}
+                                style={{ color: textColors.secondary }}
+                            />
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Betreff */}
+                <EditText
+                    value={dinLetter.subject}
+                    onChange={(v) => updateDinLetter({ subject: v })}
+                    tag="div"
+                    className="din-subject"
+                    style={{ color: textColors.primary }}
+                />
+                
+                {/* Brieftext */}
+                <div className="din-body" style={{ color: textColors.primary }}>
+                    <EditText
+                        value={dinLetter.body}
+                        onChange={(v) => updateDinLetter({ body: v })}
+                        tag="div"
+                        multiline
+                    />
+                </div>
+                
+                {/* Unterschrift */}
+                <div className="din-signature">
+                    <EditText
+                        value={dinLetter.signature}
+                        onChange={(v) => updateDinLetter({ signature: v })}
+                        style={{ color: textColors.primary }}
+                    />
+                </div>
+            </div>
+            <PageFooter footer={footer} updateFooter={updateFooter} pageNum={pageNum} settings={settings} />
+        </div>
+    );
+};
+
+/**
+ * TitlePage - Document Title/Cover Page
+ */
+const TitlePage = ({ data, updateData, page, pageNum, settings, onSelectElement }) => {
+    const { titlePage, footer } = data;
+    
+    const updateTitlePage = (updates) => updateData('titlePage', { ...titlePage, ...updates });
+    const updateFooter = (f) => updateData('footer', f);
+    
+    const bgStyle = getBgStyle(page.bgType || 'gradient', page.bgImage, page.bgOpacity, page.bgColor, settings);
+    
+    return (
+        <div 
+            className={`a4-page ${settings.documentDarkMode ? 'doc-dark' : ''}`} 
+            onClick={() => onSelectElement({ type: 'title-page', page })}
+            style={settings.documentDarkMode ? { '--doc-dark-bg': settings.dark.pageBg } : {}}
+        >
+            <div className="title-page-content">
+                <div className="title-page-bg" style={bgStyle} />
+                <div className="title-page-body">
+                    {/* Subtitle */}
+                    <EditText
+                        value={titlePage.subtitle}
+                        onChange={(v) => updateTitlePage({ subtitle: v })}
+                        tag="p"
+                        className="title-page-subtitle"
+                        style={{ fontFamily: settings.bodyFont }}
+                    />
+                    
+                    {/* Title */}
+                    <EditText
+                        value={titlePage.title}
+                        onChange={(v) => updateTitlePage({ title: v })}
+                        tag="h1"
+                        className="title-page-title"
+                        style={{ fontFamily: settings.headlineFont }}
+                    />
+                    
+                    {/* Description */}
+                    {titlePage.description !== undefined && (
+                        <EditText
+                            value={titlePage.description}
+                            onChange={(v) => updateTitlePage({ description: v })}
+                            tag="p"
+                            className="title-page-description"
+                            style={{ fontFamily: settings.bodyFont }}
+                            multiline
+                        />
+                    )}
+                    
+                    {/* Author */}
+                    <EditText
+                        value={titlePage.author}
+                        onChange={(v) => updateTitlePage({ author: v })}
+                        tag="p"
+                        className="title-page-author"
+                        style={{ fontFamily: settings.bodyFont }}
+                    />
+                    
+                    {/* Date */}
+                    <EditText
+                        value={titlePage.date}
+                        onChange={(v) => updateTitlePage({ date: v })}
+                        tag="p"
+                        className="title-page-date"
+                        style={{ fontFamily: settings.bodyFont }}
+                    />
+                </div>
+            </div>
+            <PageFooter footer={footer} updateFooter={updateFooter} pageNum={pageNum} light settings={settings} />
+        </div>
+    );
+};
+
+/**
+ * BlockPage - Flexible Content Block Page
+ */
+const BlockPage = ({ page, data, updateData, updatePage, pageNum, settings, onSelectElement, allPages }) => {
+    const { footer, continuousText } = data;
+    const [showMenu, setShowMenu] = useState(false);
+    const [menuIdx, setMenuIdx] = useState(null);
+    const [dragBlockIdx, setDragBlockIdx] = useState(null);
+    const [dragOverIdx, setDragOverIdx] = useState(null);
+    const menuRef = useRef(null);
+    
+    useClickOutside(menuRef, () => setShowMenu(false));
+    
+    const updateFooter = (f) => updateData('footer', f);
+    const updateContinuousText = (text) => updateData('continuousText', text);
+    
+    // Collect all continuous text blocks across all pages to determine this block's index
+    const getAllContinuousTextBlocks = () => {
+        const blocks = [];
+        (allPages || []).forEach(p => {
+            if (p.type === PAGE_TYPES.BLOCK && p.blocks) {
+                p.blocks.forEach(b => {
+                    if (b.type === BLOCK_TYPES.CONTINUOUS_TEXT) {
+                        blocks.push({ ...b, pageId: p.id });
+                    }
+                });
+            }
+        });
+        return blocks;
+    };
+    
+    const allContinuousBlocks = getAllContinuousTextBlocks();
+    
+    const updateBlock = (id, updates) => {
+        updatePage({
+            ...page,
+            blocks: page.blocks.map(b => b.id === id ? updates : b)
+        });
+    };
+    
+    const deleteBlock = (id) => {
+        updatePage({
+            ...page,
+            blocks: page.blocks.filter(b => b.id !== id)
+        });
+    };
+    
+    const moveBlock = (fromIdx, toIdx) => {
+        if (fromIdx === toIdx || fromIdx === null) return;
+        const blocks = [...(page.blocks || [])];
+        const [removed] = blocks.splice(fromIdx, 1);
+        blocks.splice(toIdx, 0, removed);
+        updatePage({ ...page, blocks });
+    };
+    
+    const handleDragStart = (e, idx) => {
+        setDragBlockIdx(idx);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', idx.toString());
+    };
+    
+    const handleDragOver = (e, idx) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        setDragOverIdx(idx);
+    };
+    
+    const handleDragEnd = () => {
+        setDragBlockIdx(null);
+        setDragOverIdx(null);
+    };
+    
+    const handleDrop = (e, toIdx) => {
+        e.preventDefault();
+        moveBlock(dragBlockIdx, toIdx);
+        setDragBlockIdx(null);
+        setDragOverIdx(null);
+    };
+    
+    const addBlock = (type, index) => {
+        const tileCount = type === BLOCK_TYPES.CERTIFICATIONS ? 2 : type === BLOCK_TYPES.CARDS ? 3 : 0;
+        const newBlock = {
+            id: generateId(),
+            type,
+            title: type === BLOCK_TYPES.HEADING ? 'Heading' : '',
+            entries: type === BLOCK_TYPES.EXPERIENCE ? [{
+                id: 1, dateStart: "YYYY", dateEnd: "YYYY", title: "Position",
+                company: "Company", type: "Full-time", description: "", image: null
+            }] : type === BLOCK_TYPES.EDUCATION ? [{
+                id: 1, institution: "Institution", title: "Degree", date: "YYYY", logo: null
+            }] : type === BLOCK_TYPES.CERTIFICATIONS ? [
+                { id: 1, name: "Cert", course: "Course", logo: null },
+                { id: 2, name: "Cert", course: "Course", logo: null }
+            ] : undefined,
+            columns: type === BLOCK_TYPES.CERTIFICATIONS ? 2 : type === BLOCK_TYPES.GALLERY ? 3 : undefined,
+            bgType: 'color',
+            bgColor: '#f1f3f5',
+            tileImages: new Array(tileCount).fill(null),
+            images: type === BLOCK_TYPES.GALLERY ? [null, null, null, null, null, null] : undefined,
+            content: type === BLOCK_TYPES.TEXT ? 'Enter text...' : undefined,
+            twoColumns: false,
+            icon: null,
+            spotImage: null,
+            btnText: type === BLOCK_TYPES.SPOTLIGHT ? 'Button' : '',
+            text: 'Description',
+            titles: type === BLOCK_TYPES.CARDS ? ['Card Title', 'Card Title', 'Card Title'] : undefined,
+            cards: type === BLOCK_TYPES.CARDS ? ['Add your description text here.', 'Add your description text here.', 'Add your description text here.'] : undefined,
+            quote: type === BLOCK_TYPES.QUOTE ? 'Quote' : undefined,
+            author: type === BLOCK_TYPES.QUOTE ? 'Author' : undefined,
+            role: type === BLOCK_TYPES.QUOTE ? 'Role' : undefined,
+            portrait: null,
+            underlineColor: null,
+            textColor: null
+        };
+        
+        const blocks = [...(page.blocks || [])];
+        blocks.splice(index !== undefined ? index : blocks.length, 0, newBlock);
+        updatePage({ ...page, blocks });
+        setShowMenu(false);
+    };
+    
+    // Find index of current block among all continuous text blocks
+    const getContinuousBlockIndex = (blockId) => {
+        return allContinuousBlocks.findIndex(b => b.id === blockId);
+    };
+    
+    const textColors = getTextColors(settings);
+    
+    return (
+        <div 
+            className={`a4-page ${settings.documentDarkMode ? 'doc-dark' : ''}`} 
+            onClick={() => setShowMenu(false)}
+            style={settings.documentDarkMode ? { '--doc-dark-bg': settings.dark.pageBg } : {}}
+        >
+            {settings.watermarkImage && (
+                <div className="page-watermark" style={{ backgroundImage: `url(${settings.watermarkImage})` }} />
+            )}
+            <div className="cv-content" style={{ fontFamily: settings.bodyFont, color: textColors.primary }}>
+                <div className="content-blocks">
+                    {(page.blocks || []).map((block, idx) => (
+                        <div 
+                            key={block.id} 
+                            style={{ position: 'relative' }}
+                            draggable
+                            onDragStart={(e) => handleDragStart(e, idx)}
+                            onDragOver={(e) => handleDragOver(e, idx)}
+                            onDragEnd={handleDragEnd}
+                            onDrop={(e) => handleDrop(e, idx)}
+                            className={`block-wrapper ${dragBlockIdx === idx ? 'dragging' : ''} ${dragOverIdx === idx ? 'drag-over' : ''}`}
+                        >
+                            <div className="block-drag-handle no-print">
+                                <i className="bi bi-grip-vertical" />
+                            </div>
+                            <div className="insert-overlay no-print" style={{ top: '-8px' }}>
+                                <button
+                                    className="insert-btn"
+                                    onClick={(e) => { e.stopPropagation(); setMenuIdx(idx); setShowMenu(true); }}
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <BlockRenderer
+                                block={block}
+                                onUpdate={(u) => updateBlock(block.id, u)}
+                                onDelete={() => deleteBlock(block.id)}
+                                onSelect={(e) => {
+                                    e?.stopPropagation?.();
+                                    onSelectElement({ type: 'block', block, pageId: page.id });
+                                }}
+                                settings={settings}
+                                continuousText={continuousText}
+                                onContinuousTextChange={updateContinuousText}
+                                blockIndex={getContinuousBlockIndex(block.id)}
+                                allContinuousBlocks={allContinuousBlocks}
+                            />
+                        </div>
+                    ))}
+                    <div style={{ position: 'relative', height: '20px' }}>
+                        <div className="insert-overlay no-print" style={{ top: '0', opacity: 1, pointerEvents: 'auto' }}>
+                            <button
+                                className="insert-btn"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setMenuIdx((page.blocks || []).length);
+                                    setShowMenu(true);
+                                }}
+                            >
+                                +
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {showMenu && (
+                <div
+                    ref={menuRef}
+                    className="dropdown no-print"
+                    style={{ position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 500 }}
+                >
+                    {Object.entries(BLOCK_CONFIG).map(([type, cfg]) => (
+                        <div
+                            key={type}
+                            className="dropdown-item"
+                            onClick={(e) => { e.stopPropagation(); addBlock(type, menuIdx); }}
+                        >
+                            <i className={`bi ${cfg.icon}`} />
+                            <div>
+                                <span className="dropdown-item-title">{cfg.name}</span>
+                                <small>{cfg.desc}</small>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+            <PageFooter footer={footer} updateFooter={updateFooter} pageNum={pageNum} settings={settings} />
+        </div>
+    );
+};
+
+// =============================================================================
+// 8. PANEL COMPONENTS
+// =============================================================================
+
+/**
+ * BackgroundPanel - Background Configuration Panel
+ */
+const BackgroundPanel = ({ 
+    bgType, bgImage, bgOpacity, bgColor, onChange, settings, 
+    tileCount = 0, tileImages = [], onTileImageChange,
+    showTextColor = false, textColor 
+}) => {
+    const uploadImage = (callback) => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (ev) => callback(ev.target.result);
+                reader.readAsDataURL(file);
+            }
+        };
+        input.click();
+    };
+    
+    const needsTileImages = (bgType === 'image' || bgType === 'gradient-image') && tileCount > 0;
+    const types = ['color', 'gradient', 'image', 'gradient-image'];
+    
+    return (
+        <>
+            <div className="context-section">
+                <div className="context-section-title">Background</div>
+                {types.map((t) => (
+                    <div
+                        key={t}
+                        className={`bg-option ${bgType === t ? 'active' : ''}`}
+                        onClick={() => onChange({ bgType: t })}
+                    >
+                        <input type="radio" checked={bgType === t} readOnly />
+                        <span>{t === 'color' ? 'Solid' : t === 'gradient' ? 'Gradient' : t === 'image' ? 'Image' : 'Gradient+Image'}</span>
+                    </div>
+                ))}
+            </div>
+            
+            {bgType === 'color' && (
+                <div className="context-section">
+                    <div className="context-section-title">Color</div>
+                    <ColorSwatches
+                        value={bgColor || '#f1f3f5'}
+                        onChange={(c) => onChange({ bgColor: c })}
+                        settings={settings}
+                        includeNone
+                    />
+                </div>
+            )}
+            
+            {needsTileImages ? (
+                <div className="context-section">
+                    <div className="context-section-title">Tile Images</div>
+                    <div className="tile-images">
+                        {Array.from({ length: tileCount }).map((_, i) => (
+                            <div key={i} className="tile-image-row">
+                                <span className="tile-image-label">Tile {i + 1}</span>
+                                <div
+                                    className="tile-image-upload"
+                                    onClick={() => uploadImage((v) => onTileImageChange(i, v))}
+                                >
+                                    {tileImages[i] ? (
+                                        <img src={tileImages[i]} alt="" />
+                                    ) : (
+                                        <><i className="bi bi-image" /> Upload</>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ) : (bgType === 'image' || bgType === 'gradient-image') && (
+                <div className="context-section">
+                    <div className="context-section-title">Image</div>
+                    <div
+                        className="image-upload-small"
+                        onClick={() => uploadImage((v) => onChange({ bgImage: v }))}
+                    >
+                        {bgImage ? (
+                            <><img src={bgImage} alt="" style={{ height: '100%', width: 'auto' }} /><span>Change</span></>
+                        ) : (
+                            <><i className="bi bi-image" /> Upload</>
+                        )}
+                    </div>
+                </div>
+            )}
+            
+            {bgType === 'gradient-image' && !needsTileImages && (
+                <div className="context-section">
+                    <div className="context-section-title">Opacity</div>
+                    <div className="slider-row">
+                        <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={(bgOpacity || 0.85) * 100}
+                            onChange={(e) => onChange({ bgOpacity: e.target.value / 100 })}
+                        />
+                        <span>{Math.round((bgOpacity || 0.85) * 100)}%</span>
+                    </div>
+                </div>
+            )}
+            
+            {showTextColor && (
+                <div className="context-section">
+                    <div className="context-section-title">Text Color</div>
+                    <ColorSwatches
+                        value={textColor || '#343a40'}
+                        onChange={(c) => onChange({ textColor: c })}
+                        settings={settings}
+                        includeGray={false}
+                        includeBlack
+                        includeWhite
+                    />
+                </div>
+            )}
+        </>
+    );
+};
+
+/**
+ * ContextPanel - Right Side Context Panel
+ */
+const ContextPanel = ({ isOpen, onClose, element, data, updateData, pages, setPages, settings }) => {
+    const updateBlock = (updates) => {
+        if (!element?.block) return;
+        setPages(prev => prev.map(p => {
+            if (p.type !== PAGE_TYPES.BLOCK || !p.blocks) return p;
+            return { ...p, blocks: p.blocks.map(b => b.id === element.block.id ? { ...b, ...updates } : b) };
+        }));
+    };
+    
+    const updatePage = (updates) => {
+        if (!element?.page) return;
+        setPages(prev => prev.map(p => p.id === element.page.id ? { ...p, ...updates } : p));
+    };
+    
+    const updatePortfolio = (updates) => updateData('portfolio', { ...data.portfolio, ...updates });
+    
+    const updateTileImage = (idx, img) => {
+        const tileImages = [...(element.block.tileImages || [])];
+        tileImages[idx] = img;
+        updateBlock({ tileImages });
+    };
+    
+    if (!element) return null;
+    
+    const isHeading = element.type === 'block' && element.block?.type === BLOCK_TYPES.HEADING;
+    const isCert = element.type === 'block' && element.block?.type === BLOCK_TYPES.CERTIFICATIONS;
+    const isCards = element.type === 'block' && element.block?.type === BLOCK_TYPES.CARDS;
+    const isSpotlight = element.type === 'block' && element.block?.type === BLOCK_TYPES.SPOTLIGHT;
+    const isQuote = element.type === 'block' && element.block?.type === BLOCK_TYPES.QUOTE;
+    const isText = element.type === 'block' && element.block?.type === BLOCK_TYPES.TEXT;
+    const isGallery = element.type === 'block' && element.block?.type === BLOCK_TYPES.GALLERY;
+    
+    const tileCount = isCert ? element.block.entries?.length || 2 : isCards ? 3 : 0;
+    
+    const getTitle = () => {
+        if (isHeading) return 'Heading';
+        if (isCert) return 'Certifications';
+        if (isCards) return 'Cards';
+        if (isSpotlight) return 'Spotlight';
+        if (isQuote) return 'Quote';
+        if (isText) return 'Text';
+        if (isGallery) return 'Gallery';
+        if (element.type === 'portfolio') return 'Portfolio';
+        if (element.type === 'title-page') return 'Title Page';
+        return 'Cover';
+    };
+    
+    return (
+        <div className={`context-panel ${isOpen ? 'open' : ''}`}>
+            <div className="context-panel-header">
+                <span className="context-panel-title">{getTitle()}</span>
+                <button className="context-panel-close" onClick={onClose}>
+                    <i className="bi bi-x-lg" />
+                </button>
+            </div>
+            <div className="context-panel-content">
+                {/* Heading Block Options */}
+                {isHeading && (
+                    <>
+                        <div className="context-section">
+                            <div className="context-section-title">Text Color</div>
+                            <ColorSwatches
+                                value={element.block.textColor || '#343a40'}
+                                onChange={(c) => updateBlock({ textColor: c })}
+                                settings={settings}
+                                includeGray
+                                includeBlack
+                            />
+                        </div>
+                        <div className="context-section">
+                            <div className="context-section-title">Underline Color</div>
+                            <ColorSwatches
+                                value={element.block.underlineColor || settings.primaryColor}
+                                onChange={(c) => updateBlock({ underlineColor: c })}
+                                settings={settings}
+                                includeGray
+                                includeBlack
+                                includeNone
+                            />
+                        </div>
+                    </>
+                )}
+                
+                {/* Text Block Options */}
+                {isText && (
+                    <div className="context-section">
+                        <div className="context-section-title">Layout</div>
+                        <div className="context-row">
+                            <button
+                                className={`context-btn ${!element.block.twoColumns ? 'active' : ''}`}
+                                onClick={() => updateBlock({ twoColumns: false })}
+                            >
+                                Single Column
+                            </button>
+                            <button
+                                className={`context-btn ${element.block.twoColumns ? 'active' : ''}`}
+                                onClick={() => updateBlock({ twoColumns: true })}
+                            >
+                                Two Columns
+                            </button>
+                        </div>
+                    </div>
+                )}
+                
+                {/* Gallery Block Options */}
+                {isGallery && (
+                    <div className="context-section">
+                        <div className="context-section-title">Columns</div>
+                        <div className="context-row">
+                            {[2, 3, 4].map(n => (
+                                <button
+                                    key={n}
+                                    className={`context-btn ${element.block.columns === n ? 'active' : ''}`}
+                                    onClick={() => updateBlock({ columns: n })}
+                                >
+                                    {n}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                
+                {/* Certifications Block Options */}
+                {isCert && (
+                    <>
+                        <div className="context-section">
+                            <div className="context-section-title">Columns</div>
+                            <div className="context-row">
+                                <button
+                                    className={`context-btn ${element.block.columns === 1 ? 'active' : ''}`}
+                                    onClick={() => updateBlock({ columns: 1 })}
+                                >
+                                    1
+                                </button>
+                                <button
+                                    className={`context-btn ${element.block.columns === 2 ? 'active' : ''}`}
+                                    onClick={() => updateBlock({ columns: 2 })}
+                                >
+                                    2
+                                </button>
+                            </div>
+                        </div>
+                        <BackgroundPanel
+                            bgType={element.block.bgType || 'color'}
+                            bgImage={element.block.bgImage}
+                            bgOpacity={element.block.bgOpacity}
+                            bgColor={element.block.bgColor || '#f1f3f5'}
+                            onChange={updateBlock}
+                            settings={settings}
+                            tileCount={tileCount}
+                            tileImages={element.block.tileImages || []}
+                            onTileImageChange={updateTileImage}
+                            showTextColor
+                            textColor={element.block.textColor}
+                        />
+                    </>
+                )}
+                
+                {/* Cards Block Options */}
+                {isCards && (
+                    <BackgroundPanel
+                        bgType={element.block.bgType || 'color'}
+                        bgImage={element.block.bgImage}
+                        bgOpacity={element.block.bgOpacity}
+                        bgColor={element.block.bgColor || '#f1f3f5'}
+                        onChange={updateBlock}
+                        settings={settings}
+                        tileCount={3}
+                        tileImages={element.block.tileImages || []}
+                        onTileImageChange={updateTileImage}
+                        showTextColor
+                        textColor={element.block.textColor}
+                    />
+                )}
+                
+                {/* Spotlight Block Options */}
+                {isSpotlight && (
+                    <BackgroundPanel
+                        bgType={element.block.bgType || 'gradient'}
+                        bgImage={element.block.bgImage}
+                        bgOpacity={element.block.bgOpacity}
+                        bgColor={element.block.bgColor}
+                        onChange={updateBlock}
+                        settings={settings}
+                        showTextColor
+                        textColor={element.block.textColor}
+                    />
+                )}
+                
+                {/* Quote Block Options */}
+                {isQuote && (
+                    <BackgroundPanel
+                        bgType={element.block.bgType || 'gradient'}
+                        bgImage={element.block.bgImage}
+                        bgOpacity={element.block.bgOpacity}
+                        bgColor={element.block.bgColor}
+                        onChange={updateBlock}
+                        settings={settings}
+                        showTextColor
+                        textColor={element.block.textColor}
+                    />
+                )}
+                
+                {/* Portfolio Page Options */}
+                {element.type === 'portfolio' && (
+                    <>
+                        <div className="context-section">
+                            <div className="context-section-title">Grid Layout</div>
+                            <div className="context-row">
+                                {['A', 'B', 'C'].map(v => (
+                                    <button
+                                        key={v}
+                                        className={`context-btn ${data.portfolio.gridVariant === v ? 'active' : ''}`}
+                                        onClick={() => updatePortfolio({ gridVariant: v })}
+                                    >
+                                        {v === 'A' ? '1 Image' : v === 'B' ? '3 Images' : '8 Images'}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <BackgroundPanel
+                            bgType={data.portfolio.bgType || 'gradient'}
+                            bgImage={data.portfolio.bgImage}
+                            bgOpacity={data.portfolio.bgOpacity}
+                            bgColor={data.portfolio.bgColor}
+                            onChange={updatePortfolio}
+                            settings={settings}
+                        />
+                    </>
+                )}
+                
+                {/* Cover Header & Title Page Options */}
+                {(element.type === 'cover-header' || element.type === 'title-page') && (
+                    <BackgroundPanel
+                        bgType={element.page?.bgType || 'gradient'}
+                        bgImage={element.page?.bgImage}
+                        bgOpacity={element.page?.bgOpacity}
+                        bgColor={element.page?.bgColor}
+                        onChange={updatePage}
+                        settings={settings}
+                    />
+                )}
+            </div>
+        </div>
+    );
+};
+
+/**
+ * Panel Tabs Constants
+ */
+const PANEL_TABS = {
+    ACTIONS: 'actions',
+    DESIGN: 'design',
+    MEDIA: 'media',
+    PAGES: 'pages',
+    INFO: 'info'
+};
+
+/**
+ * IconRail - Left Navigation Rail
+ */
+const IconRail = ({ activeTab, setActiveTab, panelCollapsed, setPanelCollapsed }) => {
+    const handleTabClick = (tab) => {
+        if (activeTab === tab && !panelCollapsed) {
+            setPanelCollapsed(true);
+        } else {
+            setActiveTab(tab);
+            setPanelCollapsed(false);
+        }
+    };
+    
+    return (
+        <nav className="icon-rail">
+            <div className="rail-logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="24" height="24">
+                    <rect x="6" y="4" width="20" height="24" rx="2" fill="#252525" stroke="#ff7e00" strokeWidth="2"/>
+                    <line x1="10" y1="10" x2="22" y2="10" stroke="#ff7e00" strokeWidth="2" strokeLinecap="round"/>
+                    <line x1="10" y1="15" x2="22" y2="15" stroke="#ff7e00" strokeWidth="2" strokeLinecap="round"/>
+                    <line x1="10" y1="20" x2="18" y2="20" stroke="#ff7e00" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+            </div>
+            <div className="rail-divider"></div>
+            <div className="rail-items">
+                <button 
+                    className={`rail-item ${activeTab === PANEL_TABS.ACTIONS && !panelCollapsed ? 'active' : ''}`}
+                    onClick={() => handleTabClick(PANEL_TABS.ACTIONS)}
+                    title="Actions"
+                >
+                    <i className="bi bi-lightning-charge" />
+                </button>
+                <button 
+                    className={`rail-item ${activeTab === PANEL_TABS.DESIGN && !panelCollapsed ? 'active' : ''}`}
+                    onClick={() => handleTabClick(PANEL_TABS.DESIGN)}
+                    title="Design"
+                >
+                    <i className="bi bi-palette" />
+                </button>
+                <button 
+                    className={`rail-item ${activeTab === PANEL_TABS.MEDIA && !panelCollapsed ? 'active' : ''}`}
+                    onClick={() => handleTabClick(PANEL_TABS.MEDIA)}
+                    title="Media"
+                >
+                    <i className="bi bi-images" />
+                </button>
+                <button 
+                    className={`rail-item ${activeTab === PANEL_TABS.PAGES && !panelCollapsed ? 'active' : ''}`}
+                    onClick={() => handleTabClick(PANEL_TABS.PAGES)}
+                    title="Pages"
+                >
+                    <i className="bi bi-layers" />
+                </button>
+            </div>
+            <div className="rail-footer">
+                <button 
+                    className={`rail-item ${activeTab === PANEL_TABS.INFO && !panelCollapsed ? 'active' : ''}`}
+                    onClick={() => handleTabClick(PANEL_TABS.INFO)}
+                    title="Info"
+                >
+                    <i className="bi bi-info-circle" />
+                </button>
+            </div>
+        </nav>
+    );
+};
+
+/**
+ * SettingsPanel - Settings Panel Content
+ */
+const SettingsPanel = ({ 
+    activeTab, 
+    collapsed, 
+    onClose,
+    data, 
+    setData, 
+    pages, 
+    setPages, 
+    settings, 
+    updateSettings, 
+    documentName, 
+    setDocumentName,
+    libraryImages,
+    libraryIcons,
+    onAddImages,
+    onAddIcons,
+    onRemoveImage,
+    onRemoveIcon,
+    onClearAll,
+    onSelectImage,
+    selectedImage,
+    onReset
+}) => {
+    const fileRef = useRef(null);
+    const wmRef = useRef(null);
+    const mediaFileRef = useRef(null);
+    const [dragIdx, setDragIdx] = useState(null);
+    const [overIdx, setOverIdx] = useState(null);
+    const [showPageMenu, setShowPageMenu] = useState(false);
+    const [mediaTab, setMediaTab] = useState('images');
+    const menuRef = useRef(null);
+    
+    useClickOutside(menuRef, () => setShowPageMenu(false));
+    
+    const handleDrop = (idx) => {
+        if (dragIdx === null || dragIdx === idx) return;
+        const newPages = [...pages];
+        const [removed] = newPages.splice(dragIdx, 1);
+        newPages.splice(idx, 0, removed);
+        setPages(newPages);
+        setDragIdx(null);
+        setOverIdx(null);
+    };
+    
+    const getPageName = (p, i) => {
+        switch (p.type) {
+            case PAGE_TYPES.PORTFOLIO: return 'Portfolio';
+            case PAGE_TYPES.COVER: return 'Cover Letter';
+            case PAGE_TYPES.DIN_LETTER: return 'DIN Letter';
+            case PAGE_TYPES.TITLE: return 'Title Page';
+            default: return `Page ${i + 1}`;
+        }
+    };
+    
+    const addPage = (type) => {
+        const newPage = {
+            id: generateId(),
+            type,
+            visible: true,
+            bgType: 'gradient',
+            bgImage: null,
+            bgOpacity: 0.85,
+            bgColor: null,
+            blocks: type === PAGE_TYPES.BLOCK ? [] : undefined
+        };
+        setPages([...pages, newPage]);
+        setShowPageMenu(false);
+    };
+    
+    const handleExport = () => downloadJSON(data, pages, settings, documentName);
+    
+    const handleImport = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const d = JSON.parse(ev.target.result);
+                if (d.pages) setPages(d.pages);
+                if (d.settings) updateSettings(d.settings);
+                if (d.documentName) setDocumentName(d.documentName);
+                setData(prev => ({ ...prev, ...d }));
+            } catch (err) {
+                console.error('Import failed:', err);
+            }
+        };
+        reader.readAsText(file);
+    };
+    
+    const handleWatermark = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => updateSettings({ watermarkImage: ev.target.result });
+        reader.readAsDataURL(file);
+    };
+    
+    const handleMediaFileSelect = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+        const processFiles = files.map(file => new Promise((resolve) => {
+            if (!file.type.startsWith('image/')) { resolve(null); return; }
+            const reader = new FileReader();
+            reader.onload = (ev) => resolve(ev.target.result);
+            reader.readAsDataURL(file);
+        }));
+        Promise.all(processFiles).then(results => {
+            const validImages = results.filter(r => r !== null);
+            if (mediaTab === 'images') onAddImages(validImages);
+            else onAddIcons(validImages);
+        });
+        e.target.value = '';
+    };
+    
+    const currentMediaItems = mediaTab === 'images' ? libraryImages : libraryIcons;
+    const onRemoveMedia = mediaTab === 'images' ? onRemoveImage : onRemoveIcon;
+    
+    const getPanelTitle = () => {
+        switch (activeTab) {
+            case PANEL_TABS.ACTIONS: return 'Actions';
+            case PANEL_TABS.DESIGN: return 'Design';
+            case PANEL_TABS.MEDIA: return 'Media';
+            case PANEL_TABS.PAGES: return 'Pages';
+            case PANEL_TABS.INFO: return 'Info';
+            default: return '';
+        }
+    };
+    
+    return (
+        <aside className={`settings-panel ${collapsed ? 'collapsed' : ''}`}>
+            <div className="panel-header">
+                <span className="panel-title">{getPanelTitle()}</span>
+                <button className="panel-close" onClick={onClose}>
+                    <i className="bi bi-x-lg" />
+                </button>
+            </div>
+            
+            {/* Actions Panel */}
+            {activeTab === PANEL_TABS.ACTIONS && (
+                <div className="panel-content">
+                    <div className="panel-section">
+                        <div className="panel-label">Document Name</div>
+                        <input
+                            type="text"
+                            className="input-field"
+                            value={documentName}
+                            onChange={(e) => setDocumentName(e.target.value)}
+                            placeholder="Untitled Document"
+                        />
+                    </div>
+                    <div className="panel-section">
+                        <div className="panel-label">Export & Save</div>
+                        <button className="action-btn" onClick={() => window.print()}>
+                            <i className="bi bi-printer" /> <span>Export PDF</span>
+                        </button>
+                        <button className="action-btn" onClick={handleExport}>
+                            <i className="bi bi-download" /> <span>Save Project</span>
+                        </button>
+                        <button className="action-btn" onClick={() => fileRef.current?.click()}>
+                            <i className="bi bi-folder2-open" /> <span>Load Project</span>
+                        </button>
+                        <input ref={fileRef} type="file" accept=".json" onChange={handleImport} style={{ display: 'none' }} />
+                    </div>
+                    <div className="panel-section">
+                        <div className="panel-label">Reset</div>
+                        <button className="action-btn danger" onClick={onReset}>
+                            <i className="bi bi-arrow-counterclockwise" /> <span>Reset Document</span>
+                        </button>
+                    </div>
+                </div>
+            )}
+            
+            {/* Design Panel */}
+            {activeTab === PANEL_TABS.DESIGN && (
+                <div className="panel-content">
+                    {/* Theme Toggle */}
+                    <div className="panel-section">
+                        <div className="panel-label">Document Theme</div>
+                        <button 
+                            className={`toggle-btn ${settings.documentDarkMode ? 'active' : ''}`}
+                            onClick={() => updateSettings({ documentDarkMode: !settings.documentDarkMode })}
+                        >
+                            <i className={`bi ${settings.documentDarkMode ? 'bi-moon-stars-fill' : 'bi-sun-fill'}`} />
+                            <span>{settings.documentDarkMode ? 'Dark Document' : 'Light Document'}</span>
+                        </button>
+                    </div>
+                    
+                    {/* Color Palette - Shows active palette based on toggle */}
+                    {(() => {
+                        const mode = settings.documentDarkMode ? 'dark' : 'light';
+                        const palette = settings[mode];
+                        const updatePalette = (key, value) => updateSettings({ 
+                            [mode]: { ...palette, [key]: value } 
+                        });
+                        
+                        return (
+                            <>
+                                <div className="panel-section">
+                                    <div className="panel-label">Page & Content</div>
+                                    <div className="color-grid">
+                                        <div className="color-item">
+                                            <div className="color-item-label">Page BG</div>
+                                            <input type="color" className="color-picker-box" value={palette.pageBg} onChange={(e) => updatePalette('pageBg', e.target.value)} />
+                                        </div>
+                                        <div className="color-item">
+                                            <div className="color-item-label">Content BG</div>
+                                            <input type="color" className="color-picker-box" value={palette.contentBg} onChange={(e) => updatePalette('contentBg', e.target.value)} />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="panel-section">
+                                    <div className="panel-label">Header / Gradient</div>
+                                    <div className="color-grid">
+                                        <div className="color-item">
+                                            <div className="color-item-label">Primary</div>
+                                            <input type="color" className="color-picker-box" value={palette.headerBg} onChange={(e) => updatePalette('headerBg', e.target.value)} />
+                                        </div>
+                                        <div className="color-item">
+                                            <div className="color-item-label">Secondary</div>
+                                            <input type="color" className="color-picker-box" value={palette.headerBg2} onChange={(e) => updatePalette('headerBg2', e.target.value)} />
+                                        </div>
+                                        <div className="color-item">
+                                            <div className="color-item-label">Tertiary</div>
+                                            <input type="color" className="color-picker-box" value={palette.headerBg3} onChange={(e) => updatePalette('headerBg3', e.target.value)} />
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div className="panel-section">
+                                    <div className="panel-label">Text & Accent</div>
+                                    <div className="color-grid">
+                                        <div className="color-item">
+                                            <div className="color-item-label">Text 1</div>
+                                            <input type="color" className="color-picker-box" value={palette.textPrimary} onChange={(e) => updatePalette('textPrimary', e.target.value)} />
+                                        </div>
+                                        <div className="color-item">
+                                            <div className="color-item-label">Text 2</div>
+                                            <input type="color" className="color-picker-box" value={palette.textSecondary} onChange={(e) => updatePalette('textSecondary', e.target.value)} />
+                                        </div>
+                                        <div className="color-item">
+                                            <div className="color-item-label">On Dark</div>
+                                            <input type="color" className="color-picker-box" value={palette.textOnDark} onChange={(e) => updatePalette('textOnDark', e.target.value)} />
+                                        </div>
+                                        <div className="color-item">
+                                            <div className="color-item-label">Accent</div>
+                                            <input type="color" className="color-picker-box" value={palette.accent} onChange={(e) => updatePalette('accent', e.target.value)} />
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        );
+                    })()}
+                    
+                    <div className="panel-section">
+                        <div className="panel-label">Typography</div>
+                        <select className="select-field" value={settings.headlineFont} onChange={(e) => updateSettings({ headlineFont: e.target.value })}>
+                            {FONTS.headline.map(f => <option key={f.name} value={f.value}>{f.name}</option>)}
+                        </select>
+                        <select className="select-field" value={settings.bodyFont} onChange={(e) => updateSettings({ bodyFont: e.target.value })}>
+                            {FONTS.body.map(f => <option key={f.name} value={f.value}>{f.name}</option>)}
+                        </select>
+                    </div>
+                    <div className="panel-section">
+                        <div className="panel-label">Watermark</div>
+                        <button className="action-btn" onClick={() => wmRef.current?.click()}>
+                            <i className="bi bi-image" /> <span>{settings.watermarkImage ? 'Change' : 'Upload'}</span>
+                        </button>
+                        <input ref={wmRef} type="file" accept="image/*" onChange={handleWatermark} style={{ display: 'none' }} />
+                        {settings.watermarkImage && (
+                            <button className="action-btn" onClick={() => updateSettings({ watermarkImage: null })}>
+                                <i className="bi bi-x" /> <span>Remove</span>
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+            
+            {/* Media Panel */}
+            {activeTab === PANEL_TABS.MEDIA && (
+                <div className="panel-content">
+                    <div className="media-tabs">
+                        <button className={`media-tab ${mediaTab === 'images' ? 'active' : ''}`} onClick={() => setMediaTab('images')}>
+                            <i className="bi bi-images" /> Images
+                        </button>
+                        <button className={`media-tab ${mediaTab === 'icons' ? 'active' : ''}`} onClick={() => setMediaTab('icons')}>
+                            <i className="bi bi-app" /> Icons
+                        </button>
+                    </div>
+                    <div className="media-grid">
+                        {currentMediaItems.map((src, idx) => (
+                            <div 
+                                key={idx} 
+                                className={`media-thumb ${selectedImage === src ? 'selected' : ''}`}
+                                draggable
+                                onDragStart={(e) => {
+                                    e.dataTransfer.setData('text/plain', src);
+                                    e.dataTransfer.effectAllowed = 'copy';
+                                }}
+                                onClick={() => onSelectImage(selectedImage === src ? null : src)}
+                            >
+                                <img src={src} alt="" draggable={false} />
+                                <button className="delete-btn" onClick={(e) => { e.stopPropagation(); onRemoveMedia(idx); }}>
+                                    <i className="bi bi-x" />
+                                </button>
+                            </div>
+                        ))}
+                        <div className="media-thumb add" onClick={() => mediaFileRef.current?.click()}>
+                            <i className="bi bi-plus-lg" />
+                        </div>
+                    </div>
+                    <input ref={mediaFileRef} type="file" accept="image/*" multiple onChange={handleMediaFileSelect} style={{ display: 'none' }} />
+                    {currentMediaItems.length > 0 && (
+                        <button className="media-delete-all" onClick={() => { if (window.confirm(`Delete all ${mediaTab}?`)) onClearAll(mediaTab); }}>
+                            <i className="bi bi-trash" /> Delete All {mediaTab === 'images' ? 'Images' : 'Icons'}
+                        </button>
+                    )}
+                </div>
+            )}
+            
+            {/* Pages Panel */}
+            {activeTab === PANEL_TABS.PAGES && (
+                <div className="panel-content">
+                    <div className="page-list">
+                        {pages.map((p, i) => (
+                            <div
+                                key={p.id}
+                                className={`page-item ${dragIdx === i ? 'dragging' : ''} ${overIdx === i ? 'drag-over' : ''}`}
+                                draggable
+                                onDragStart={() => setDragIdx(i)}
+                                onDragOver={(e) => { e.preventDefault(); setOverIdx(i); }}
+                                onDrop={() => handleDrop(i)}
+                                onDragEnd={() => { setDragIdx(null); setOverIdx(null); }}
+                            >
+                                <i className="bi bi-grip-vertical page-grip" />
+                                <span className="page-item-name">{getPageName(p, i)}</span>
+                                <span className="page-item-num">
+                                    {p.visible ? pages.filter((x, j) => j <= i && x.visible).length : '-'}
+                                </span>
+                                <div className="page-actions">
+                                    <button className="page-item-btn" onClick={() => {
+                                        const newPages = [...pages];
+                                        newPages[i] = { ...newPages[i], visible: !newPages[i].visible };
+                                        setPages(newPages);
+                                    }}>
+                                        <i className={`bi ${p.visible ? 'bi-eye' : 'bi-eye-slash'}`} />
+                                    </button>
+                                    <button className="page-item-btn" onClick={() => pages.length > 1 && setPages(pages.filter((_, j) => j !== i))}>
+                                        <i className="bi bi-trash" />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    <div style={{ position: 'relative' }} ref={menuRef}>
+                        <button className="add-btn primary" onClick={() => setShowPageMenu(!showPageMenu)}>
+                            + Add Page
+                        </button>
+                        {showPageMenu && (
+                            <div className="dropdown" style={{ left: 0, top: '100%', marginTop: '6px', maxHeight: '280px', overflowY: 'auto' }}>
+                                <div className="dropdown-item" onClick={() => addPage(PAGE_TYPES.PORTFOLIO)}>
+                                    <i className="bi bi-grid-3x3-gap" />
+                                    <div><span className="dropdown-item-title">Portfolio</span><small>Image gallery</small></div>
+                                </div>
+                                <div className="dropdown-item" onClick={() => addPage(PAGE_TYPES.TITLE)}>
+                                    <i className="bi bi-file-earmark-richtext" />
+                                    <div><span className="dropdown-item-title">Title Page</span><small>Document cover</small></div>
+                                </div>
+                                <div className="dropdown-item" onClick={() => addPage(PAGE_TYPES.COVER)}>
+                                    <i className="bi bi-file-text" />
+                                    <div><span className="dropdown-item-title">Cover Letter</span><small>Application letter</small></div>
+                                </div>
+                                <div className="dropdown-item" onClick={() => addPage(PAGE_TYPES.DIN_LETTER)}>
+                                    <i className="bi bi-envelope" />
+                                    <div><span className="dropdown-item-title">DIN Letter</span><small>German standard</small></div>
+                                </div>
+                                <div className="dropdown-item" onClick={() => addPage(PAGE_TYPES.BLOCK)}>
+                                    <i className="bi bi-person-lines-fill" />
+                                    <div><span className="dropdown-item-title">Block Page</span><small>Flexible content</small></div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+            
+            {/* Info Panel */}
+            {activeTab === PANEL_TABS.INFO && (
+                <div className="info-content">
+                    <div className="info-logo">Blockpage</div>
+                    <div className="info-version">Version 5.0</div>
+                    <div className="info-divider"></div>
+                    <div className="info-author">Created by</div>
+                    <a href="https://mariusmichusch.de" className="info-link" target="_blank" rel="noopener noreferrer">Marius Michusch</a>
+                </div>
+            )}
+        </aside>
+    );
+};
+
+/**
+ * LeftSidebar - Legacy wrapper (kept for compatibility)
+ */
+const LeftSidebar = ({ data, setData, pages, setPages, settings, updateSettings, documentName, setDocumentName }) => {
+    // This component is now replaced by IconRail + SettingsPanel
+    // Kept as empty stub for compatibility
+    return null;
+};
+
+/**
+ * ImageExplorer - Bottom Image Library Panel
+ * Ausklappbarer Explorer für Bilder und Icons
+ */
+const ImageExplorer = ({ isOpen, onToggle, images, icons, onAddImages, onAddIcons, onRemoveImage, onRemoveIcon, onClearAll, onSelectImage, selectedImage }) => {
+    const [activeTab, setActiveTab] = useState('images');
+    const fileInputRef = useRef(null);
+    
+    const handleFileSelect = (e) => {
+        const files = Array.from(e.target.files || []);
+        if (files.length === 0) return;
+        
+        const processFiles = files.map(file => {
+            return new Promise((resolve) => {
+                if (!file.type.startsWith('image/')) {
+                    resolve(null);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (ev) => resolve(ev.target.result);
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        Promise.all(processFiles).then(results => {
+            const validImages = results.filter(r => r !== null);
+            if (activeTab === 'images') {
+                onAddImages(validImages);
+            } else {
+                onAddIcons(validImages);
+            }
+        });
+        
+        // Reset input
+        e.target.value = '';
+    };
+    
+    const handleDrop = (e) => {
+        e.preventDefault();
+        const files = Array.from(e.dataTransfer.files);
+        if (files.length === 0) return;
+        
+        const processFiles = files.map(file => {
+            return new Promise((resolve) => {
+                if (!file.type.startsWith('image/')) {
+                    resolve(null);
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (ev) => resolve(ev.target.result);
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        Promise.all(processFiles).then(results => {
+            const validImages = results.filter(r => r !== null);
+            if (activeTab === 'images') {
+                onAddImages(validImages);
+            } else {
+                onAddIcons(validImages);
+            }
+        });
+    };
+    
+    const currentItems = activeTab === 'images' ? images : icons;
+    const onRemove = activeTab === 'images' ? onRemoveImage : onRemoveIcon;
+    
+    return (
+        <div className={`image-explorer ${isOpen ? 'open' : ''}`}>
+            <div className="explorer-toggle" onClick={onToggle}>
+                <i className={`bi ${isOpen ? 'bi-chevron-down' : 'bi-chevron-up'}`} />
+                <span>Image Library ({images.length + icons.length})</span>
+                <i className={`bi ${isOpen ? 'bi-chevron-down' : 'bi-chevron-up'}`} />
+            </div>
+            
+            {isOpen && (
+                <div className="explorer-content">
+                    <div className="explorer-header">
+                        <div className="explorer-tabs">
+                            <button 
+                                className={`explorer-tab ${activeTab === 'images' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('images')}
+                            >
+                                <i className="bi bi-images" /> Images ({images.length})
+                            </button>
+                            <button 
+                                className={`explorer-tab ${activeTab === 'icons' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('icons')}
+                            >
+                                <i className="bi bi-app" /> Icons ({icons.length})
+                            </button>
+                        </div>
+                        <div className="explorer-actions">
+                            <button 
+                                className="explorer-btn"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <i className="bi bi-plus-lg" /> Add
+                            </button>
+                            {currentItems.length > 0 && (
+                                <button 
+                                    className="explorer-btn danger"
+                                    onClick={() => {
+                                        if (window.confirm(`Delete all ${activeTab}?`)) {
+                                            onClearAll(activeTab);
+                                        }
+                                    }}
+                                >
+                                    <i className="bi bi-trash" /> Clear All
+                                </button>
+                            )}
+                        </div>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            onChange={handleFileSelect}
+                            style={{ display: 'none' }}
+                        />
+                    </div>
+                    
+                    <div 
+                        className="explorer-grid"
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={handleDrop}
+                    >
+                        {currentItems.length === 0 ? (
+                            <div className="explorer-empty" onClick={() => fileInputRef.current?.click()}>
+                                <i className="bi bi-cloud-upload" />
+                                <p>Drop {activeTab} here or click to add</p>
+                                <small>Drag images to placeholders in your document</small>
+                            </div>
+                        ) : (
+                            currentItems.map((src, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className={`explorer-item ${selectedImage === src ? 'selected' : ''}`}
+                                    draggable
+                                    onDragStart={(e) => {
+                                        e.dataTransfer.setData('text/plain', src);
+                                        e.dataTransfer.effectAllowed = 'copy';
+                                    }}
+                                    onClick={() => onSelectImage(selectedImage === src ? null : src)}
+                                >
+                                    <img src={src} alt="" draggable={false} />
+                                    <button 
+                                        className="explorer-item-delete"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onRemove(idx);
+                                        }}
+                                    >
+                                        <i className="bi bi-x" />
+                                    </button>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// =============================================================================
+// 9. MAIN APP COMPONENT
+// =============================================================================
+
+const App = () => {
+    // State with history for undo/redo
+    const { state: data, setState: setData, undo: undoData, redo: redoData, canUndo, canRedo, reset: resetData } = 
+        useHistory(createDefaultData());
+    
+    const [pages, setPages] = useState(createDefaultPages);
+    const [settings, setSettings] = useState(defaultSettings);
+    const [contextElement, setContextElement] = useState(null);
+    const [panelOpen, setPanelOpen] = useState(false);
+    const [documentName, setDocumentName] = useState('Untitled Document');
+    
+    // New UI State
+    const [activeTab, setActiveTab] = useState(PANEL_TABS.ACTIONS);
+    const [settingsPanelCollapsed, setSettingsPanelCollapsed] = useState(false);
+    
+    // Image Library State
+    const [libraryImages, setLibraryImages] = useState([]);
+    const [libraryIcons, setLibraryIcons] = useState([]);
+    const [selectedImage, setSelectedImage] = useState(null);
+    
+    const updateData = (key, value) => setData(prev => ({ ...prev, [key]: value }));
+    const updateSettings = (updates) => setSettings(prev => ({ ...prev, ...updates }));
+    const updatePageById = (id, updates) => setPages(prev => prev.map(p => p.id === id ? updates : p));
+    
+    const getPageNum = (index) => {
+        let num = 0;
+        for (let j = 0; j <= index; j++) {
+            if (pages[j].visible) num++;
+        }
+        return num;
+    };
+    
+    const handleSelectElement = (element) => {
+        setContextElement(element);
+        setPanelOpen(true);
+    };
+    
+    const handleClosePanel = () => {
+        setPanelOpen(false);
+        setContextElement(null);
+    };
+    
+    const handleReset = () => {
+        if (window.confirm('Reset all content to defaults? This cannot be undone.')) {
+            resetData(createDefaultData());
+            setPages(createDefaultPages());
+            setSettings(defaultSettings());
+        }
+    };
+    
+    // Close panel when clicking outside
+    useEffect(() => {
+        const handler = (e) => {
+            if (e.target.closest('.context-panel') || e.target.closest('.dropdown')) return;
+            if (!e.target.closest('.content-block') && !e.target.closest('.cover-header') && !e.target.closest('.a4-page')) {
+                handleClosePanel();
+            }
+        };
+        document.addEventListener('click', handler);
+        return () => document.removeEventListener('click', handler);
+    }, []);
+    
+    // Keyboard shortcuts for undo/redo
+    useEffect(() => {
+        const handler = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                if (e.shiftKey) {
+                    redoData();
+                } else {
+                    undoData();
+                }
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                redoData();
+            }
+        };
+        document.addEventListener('keydown', handler);
+        return () => document.removeEventListener('keydown', handler);
+    }, [undoData, redoData]);
+    
+    // Update document title based on document name
+    useEffect(() => {
+        document.title = documentName ? `${documentName} - Blockpage` : 'Blockpage';
+    }, [documentName]);
+    
+    const renderPage = (page, index) => {
+        if (!page.visible) return null;
+        const pageNum = getPageNum(index);
+        const baseProps = {
+            key: page.id,
+            data,
+            updateData,
+            pageNum,
+            settings,
+            onSelectElement: handleSelectElement
+        };
+        
+        switch (page.type) {
+            case PAGE_TYPES.PORTFOLIO:
+                return <PortfolioPage {...baseProps} />;
+            case PAGE_TYPES.COVER:
+                return <CoverPage {...baseProps} page={page} updatePage={(u) => updatePageById(page.id, u)} />;
+            case PAGE_TYPES.DIN_LETTER:
+                return <DinLetterPage {...baseProps} />;
+            case PAGE_TYPES.TITLE:
+                return <TitlePage {...baseProps} page={page} />;
+            case PAGE_TYPES.BLOCK:
+                return <BlockPage {...baseProps} page={page} updatePage={(u) => updatePageById(page.id, u)} allPages={pages} />;
+            default:
+                return null;
+        }
+    };
+    
+    const imageLibraryValue = {
+        images: libraryImages,
+        icons: libraryIcons,
+        selectedImage,
+        addImages: (imgs) => setLibraryImages(prev => [...prev, ...imgs]),
+        addIcons: (icns) => setLibraryIcons(prev => [...prev, ...icns]),
+        removeImage: (idx) => setLibraryImages(prev => prev.filter((_, i) => i !== idx)),
+        removeIcon: (idx) => setLibraryIcons(prev => prev.filter((_, i) => i !== idx)),
+        clearAll: () => { setLibraryImages([]); setLibraryIcons([]); },
+        selectImage: setSelectedImage
+    };
+    
+    return (
+        <ImageLibraryContext.Provider value={imageLibraryValue}>
+            <div className="app-container">
+                <IconRail 
+                    activeTab={activeTab} 
+                    setActiveTab={setActiveTab}
+                    panelCollapsed={settingsPanelCollapsed}
+                    setPanelCollapsed={setSettingsPanelCollapsed}
+                />
+                <SettingsPanel
+                    activeTab={activeTab}
+                    collapsed={settingsPanelCollapsed}
+                    onClose={() => setSettingsPanelCollapsed(true)}
+                    data={data}
+                    setData={setData}
+                    pages={pages}
+                    setPages={setPages}
+                    settings={settings}
+                    updateSettings={updateSettings}
+                    documentName={documentName}
+                    setDocumentName={setDocumentName}
+                    libraryImages={libraryImages}
+                    libraryIcons={libraryIcons}
+                    onAddImages={(imgs) => setLibraryImages(prev => [...prev, ...imgs])}
+                    onAddIcons={(icns) => setLibraryIcons(prev => [...prev, ...icns])}
+                    onRemoveImage={(idx) => setLibraryImages(prev => prev.filter((_, i) => i !== idx))}
+                    onRemoveIcon={(idx) => setLibraryIcons(prev => prev.filter((_, i) => i !== idx))}
+                    onClearAll={(type) => {
+                        if (type === 'images') setLibraryImages([]);
+                        else setLibraryIcons([]);
+                    }}
+                    onSelectImage={setSelectedImage}
+                    selectedImage={selectedImage}
+                    onReset={handleReset}
+                />
+                <main className={`main-canvas ${panelOpen ? 'panel-open' : ''}`}>
+                    {pages.map(renderPage)}
+                </main>
+                <ContextPanel
+                    isOpen={panelOpen}
+                    onClose={handleClosePanel}
+                    element={contextElement}
+                    data={data}
+                    updateData={updateData}
+                    pages={pages}
+                    setPages={setPages}
+                    settings={settings}
+                />
+            </div>
+        </ImageLibraryContext.Provider>
+    );
+};
+
+// =============================================================================
+// 10. RENDER
+// =============================================================================
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
